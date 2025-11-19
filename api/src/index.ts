@@ -8,7 +8,7 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Máximo tamaño de archivo de entrada (ej: 80 MB)
-const MAX_UPLOAD_MB = 80;
+const MAX_UPLOAD_MB = 200;
 const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 
 app.use(cors());
