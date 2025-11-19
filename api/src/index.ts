@@ -7,10 +7,6 @@ import fs from "fs";
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Máximo tamaño de archivo de entrada (ej: 80 MB)
-const MAX_UPLOAD_MB = 200;
-const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
-
 app.use(cors());
 
 // Archivo que verán SIEMPRE las pantallas
@@ -22,10 +18,12 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "gvx-demo-api" });
 });
 
-// Utilidad para borrar archivo temporal
 function safeUnlink(path: string) {
   fs.unlink(path, () => {});
 }
+
+// Siempre queremos estandarizar a 15 segundos
+const TARGET_LENGTH_SECONDS = 15;
 
 // 1) Endpoint de prueba: recorta y devuelve el mp4 por streaming directo
 app.post("/media/trim", upload.single("file"), (req, res) => {
@@ -36,26 +34,13 @@ app.post("/media/trim", upload.single("file"), (req, res) => {
         .json({ error: 'Missing file field named "file"' });
     }
 
-    if (req.file.size > MAX_UPLOAD_BYTES) {
-      safeUnlink(req.file.path);
-      return res.status(413).json({
-        error: `File too large. Max ${MAX_UPLOAD_MB}MB allowed.`
-      });
-    }
-
-    const body = req.body as { start?: string; length?: string };
-    const startSec = Number(body.start);
-    const lengthSec = Number(body.length);
-
-    if (!Number.isFinite(startSec) || !Number.isFinite(lengthSec) || lengthSec <= 0) {
-      safeUnlink(req.file.path);
-      return res.status(400).json({ error: "start and length must be valid numbers" });
-    }
+    const body = req.body as { start?: string };
+    const startSec = Number(body.start) || 0;
+    const lengthSec = TARGET_LENGTH_SECONDS;
 
     const inputPath = req.file.path;
     const ffmpegPath = process.env.FFMPEG_BIN || "ffmpeg";
 
-    // También aquí normalizamos: 1280 ancho máx, 30 fps
     const args = [
       "-ss", String(startSec),
       "-t", String(lengthSec),
@@ -114,30 +99,18 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
         .json({ error: 'Missing file field named "file"' });
     }
 
-    if (req.file.size > MAX_UPLOAD_BYTES) {
-      safeUnlink(req.file.path);
-      return res.status(413).json({
-        error: `File too large. Max ${MAX_UPLOAD_MB}MB allowed.`
-      });
-    }
-
-    const body = req.body as { start?: string; length?: string };
-    const startSec = Number(body.start);
-    const lengthSec = Number(body.length);
-
-    if (!Number.isFinite(startSec) || !Number.isFinite(lengthSec) || lengthSec <= 0) {
-      safeUnlink(req.file.path);
-      return res.status(400).json({ error: "start and length must be valid numbers" });
-    }
+    const body = req.body as { start?: string };
+    const startSec = Number(body.start) || 0;
+    const lengthSec = TARGET_LENGTH_SECONDS;
 
     const inputPath = req.file.path;
     const ffmpegPath = process.env.FFMPEG_BIN || "ffmpeg";
 
-    // Aquí es donde estandarizamos TODO:
-    // - Recorta 15s (lengthSec)
+    // Estandarización total:
+    // - Recorta 15s desde startSec
     // - Reescala máx 1280 de ancho
-    // - fps=30
-    // - CRF 28, maxrate 4M
+    // - 30 fps
+    // - H.264 + AAC comprimido
     const args = [
       "-ss", String(startSec),
       "-t", String(lengthSec),
@@ -176,7 +149,7 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
         console.error("FFmpeg exited (trim-set) with code", code);
         if (!res.headersSent) {
           return res.status(500).json({
-            error: "FFmpeg error (posiblemente video muy pesado para el servidor)"
+            error: "FFmpeg error (video demasiado pesado para esta instancia)"
           });
         }
       }
