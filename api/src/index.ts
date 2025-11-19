@@ -3,10 +3,13 @@ import multer from "multer";
 import cors from "cors";
 import { spawn } from "child_process";
 import fs from "fs";
-import path from "path";
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+// Máximo tamaño de archivo de entrada (ej: 80 MB)
+const MAX_UPLOAD_MB = 80;
+const MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024;
 
 app.use(cors());
 
@@ -19,6 +22,11 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "gvx-demo-api" });
 });
 
+// Utilidad para borrar archivo temporal
+function safeUnlink(path: string) {
+  fs.unlink(path, () => {});
+}
+
 // 1) Endpoint de prueba: recorta y devuelve el mp4 por streaming directo
 app.post("/media/trim", upload.single("file"), (req, res) => {
   try {
@@ -28,25 +36,39 @@ app.post("/media/trim", upload.single("file"), (req, res) => {
         .json({ error: 'Missing file field named "file"' });
     }
 
+    if (req.file.size > MAX_UPLOAD_BYTES) {
+      safeUnlink(req.file.path);
+      return res.status(413).json({
+        error: `File too large. Max ${MAX_UPLOAD_MB}MB allowed.`
+      });
+    }
+
     const body = req.body as { start?: string; length?: string };
     const startSec = Number(body.start);
     const lengthSec = Number(body.length);
 
     if (!Number.isFinite(startSec) || !Number.isFinite(lengthSec) || lengthSec <= 0) {
+      safeUnlink(req.file.path);
       return res.status(400).json({ error: "start and length must be valid numbers" });
     }
 
     const inputPath = req.file.path;
     const ffmpegPath = process.env.FFMPEG_BIN || "ffmpeg";
 
+    // También aquí normalizamos: 1280 ancho máx, 30 fps
     const args = [
       "-ss", String(startSec),
       "-t", String(lengthSec),
       "-i", inputPath,
-      "-movflags", "+frag_keyframe+empty_moov",
+      "-vf", "scale=1280:-2,fps=30",
       "-preset", "veryfast",
+      "-crf", "28",
+      "-movflags", "+frag_keyframe+empty_moov",
       "-c:v", "libx264",
       "-c:a", "aac",
+      "-b:a", "128k",
+      "-maxrate", "4M",
+      "-bufsize", "8M",
       "-f", "mp4",
       "pipe:1"
     ];
@@ -62,7 +84,7 @@ app.post("/media/trim", upload.single("file"), (req, res) => {
     });
 
     ff.on("close", (code) => {
-      fs.unlink(inputPath, () => {});
+      safeUnlink(inputPath);
       if (code !== 0) {
         console.error("FFmpeg exited (trim) with code", code);
       }
@@ -70,7 +92,7 @@ app.post("/media/trim", upload.single("file"), (req, res) => {
 
     ff.on("error", (err) => {
       console.error("FFmpeg error (trim):", err);
-      fs.unlink(inputPath, () => {});
+      safeUnlink(inputPath);
       if (!res.headersSent) {
         res.status(500).json({ error: "FFmpeg error" });
       }
@@ -92,29 +114,43 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
         .json({ error: 'Missing file field named "file"' });
     }
 
+    if (req.file.size > MAX_UPLOAD_BYTES) {
+      safeUnlink(req.file.path);
+      return res.status(413).json({
+        error: `File too large. Max ${MAX_UPLOAD_MB}MB allowed.`
+      });
+    }
+
     const body = req.body as { start?: string; length?: string };
     const startSec = Number(body.start);
     const lengthSec = Number(body.length);
 
     if (!Number.isFinite(startSec) || !Number.isFinite(lengthSec) || lengthSec <= 0) {
+      safeUnlink(req.file.path);
       return res.status(400).json({ error: "start and length must be valid numbers" });
     }
 
     const inputPath = req.file.path;
     const ffmpegPath = process.env.FFMPEG_BIN || "ffmpeg";
 
-    // Importante: reescalamos y bajamos fps para que la instancia de Koyeb aguante
+    // Aquí es donde estandarizamos TODO:
+    // - Recorta 15s (lengthSec)
+    // - Reescala máx 1280 de ancho
+    // - fps=30
+    // - CRF 28, maxrate 4M
     const args = [
       "-ss", String(startSec),
       "-t", String(lengthSec),
       "-i", inputPath,
       "-vf", "scale=1280:-2,fps=30",
       "-preset", "veryfast",
-      "-crf", "26",
+      "-crf", "28",
       "-movflags", "+faststart",
       "-c:v", "libx264",
       "-c:a", "aac",
       "-b:a", "128k",
+      "-maxrate", "4M",
+      "-bufsize", "8M",
       "-y",
       CURRENT_OUTPUT_PATH
     ];
@@ -130,7 +166,7 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
     });
 
     ff.on("close", (code) => {
-      fs.unlink(inputPath, () => {});
+      safeUnlink(inputPath);
       if (code === 0) {
         console.log("✅ Nuevo video para pantallas:", CURRENT_OUTPUT_PATH);
         if (!res.headersSent) {
@@ -148,7 +184,7 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
 
     ff.on("error", (err) => {
       console.error("FFmpeg error (trim-set):", err);
-      fs.unlink(inputPath, () => {});
+      safeUnlink(inputPath);
       if (!res.headersSent) {
         res.status(500).json({ error: "FFmpeg error" });
       }
