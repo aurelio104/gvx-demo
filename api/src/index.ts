@@ -64,7 +64,7 @@ app.post("/media/trim", upload.single("file"), (req, res) => {
     ff.on("close", (code) => {
       fs.unlink(inputPath, () => {});
       if (code !== 0) {
-        console.error("FFmpeg exited with code", code);
+        console.error("FFmpeg exited (trim) with code", code);
       }
     });
 
@@ -103,14 +103,18 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
     const inputPath = req.file.path;
     const ffmpegPath = process.env.FFMPEG_BIN || "ffmpeg";
 
+    // Importante: reescalamos y bajamos fps para que la instancia de Koyeb aguante
     const args = [
       "-ss", String(startSec),
       "-t", String(lengthSec),
       "-i", inputPath,
-      "-movflags", "+faststart",
+      "-vf", "scale=1280:-2,fps=30",
       "-preset", "veryfast",
+      "-crf", "26",
+      "-movflags", "+faststart",
       "-c:v", "libx264",
       "-c:a", "aac",
+      "-b:a", "128k",
       "-y",
       CURRENT_OUTPUT_PATH
     ];
@@ -121,14 +125,24 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
       console.error("FFmpeg STDERR (trim-set):", data.toString());
     });
 
+    ff.on("exit", (code, signal) => {
+      console.log("FFmpeg exit (trim-set): code=", code, "signal=", signal);
+    });
+
     ff.on("close", (code) => {
       fs.unlink(inputPath, () => {});
       if (code === 0) {
         console.log("✅ Nuevo video para pantallas:", CURRENT_OUTPUT_PATH);
-        return res.json({ ok: true, path: CURRENT_OUTPUT_PATH });
+        if (!res.headersSent) {
+          return res.json({ ok: true, path: CURRENT_OUTPUT_PATH });
+        }
       } else {
-        console.error("FFmpeg exited with code", code);
-        return res.status(500).json({ error: "FFmpeg error" });
+        console.error("FFmpeg exited (trim-set) with code", code);
+        if (!res.headersSent) {
+          return res.status(500).json({
+            error: "FFmpeg error (posiblemente video muy pesado para el servidor)"
+          });
+        }
       }
     });
 
