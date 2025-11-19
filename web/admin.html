@@ -1,117 +1,298 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>GVX Demo - Admin (Upload)</title>
+  <title>GVX Admin · Programar pantalla</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; margin: 2rem; max-width: 720px; }
-    h1 { font-size: 1.8rem; margin-bottom: 1rem; }
-    form { border: 1px solid #ddd; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
-    label { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
-    input[type="number"], input[type="file"], input[type="text"] {
-      width: 100%; padding: 0.4rem 0.5rem; margin-bottom: 0.75rem;
-      border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box;
+    :root{
+      color-scheme:dark;
+      --bg:#020617;
+      --card:rgba(15,23,42,0.92);
+      --border:rgba(148,163,184,0.35);
+      --accent:#38bdf8;
     }
-    button { padding: 0.6rem 1.2rem; border-radius: 999px; border: none; cursor: pointer; font-weight: 600; }
-    button:disabled { opacity: 0.6; cursor: default; }
-    .primary { background: #111827; color: white; }
-    .status { font-size: 0.9rem; margin-top: 0.5rem; white-space: pre-wrap; }
-    .status.ok { color: #15803d; }
-    .status.error { color: #b91c1c; }
-    video { width: 100%; border-radius: 12px; border: 1px solid #ddd; margin-top: 1rem; }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top,#1e293b 0,#020617 55%,#000 100%);
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+      color:#e5e7eb;
+      padding:16px;
+    }
+    .card{
+      width:100%;
+      max-width:720px;
+      background:var(--card);
+      border-radius:24px;
+      border:1px solid var(--border);
+      padding:18px 18px 20px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.6);
+      backdrop-filter:blur(22px) saturate(160%);
+    }
+    h1{
+      margin:0 0 4px;
+      font-size:20px;
+    }
+    .sub{
+      margin:0 0 16px;
+      font-size:12px;
+      opacity:.75;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap:16px;
+    }
+    @media (max-width:720px){
+      .grid{grid-template-columns:1fr;}
+    }
+    label{
+      display:block;
+      font-size:11px;
+      margin-bottom:4px;
+      opacity:.9;
+    }
+    input,select{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(51,65,85,0.9);
+      background:rgba(15,23,42,0.95);
+      padding:8px 10px;
+      color:#e5e7eb;
+      font-size:13px;
+      outline:none;
+    }
+    input:focus,select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(56,189,248,0.6);
+    }
+    input[type="file"]{
+      padding:6px 8px;
+    }
+    input[type="time"]{
+      font-variant-numeric:tabular-nums;
+    }
+    .field{margin-bottom:10px;}
+    .tiny{font-size:10px;opacity:.6;}
+    .btn-row{
+      margin-top:8px;
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+      align-items:center;
+    }
+    button{
+      border-radius:999px;
+      border:none;
+      padding:7px 16px;
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      background:#0f172a;
+      color:#e5e7eb;
+    }
+    button.primary{
+      background:linear-gradient(135deg,#38bdf8,#a855f7);
+      color:#020617;
+      box-shadow:0 12px 30px rgba(56,189,248,0.55);
+    }
+    button[disabled]{
+      opacity:.55;
+      cursor:default;
+      box-shadow:none;
+    }
+    .status{
+      font-size:11px;
+      margin-top:6px;
+      min-height:14px;
+    }
+    .status.ok{color:#4ade80;}
+    .status.err{color:#fb7185;}
+    video{
+      width:100%;
+      border-radius:18px;
+      border:1px solid rgba(30,64,175,0.7);
+      background:#000;
+      max-height:260px;
+      object-fit:contain;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:3px 10px;
+      font-size:10px;
+      background:rgba(15,23,42,0.95);
+      border:1px solid rgba(148,163,184,0.5);
+      margin-bottom:10px;
+    }
+    .pill-dot{
+      width:7px;height:7px;border-radius:999px;
+      background:radial-gradient(circle,#22c55e,#16a34a);
+      box-shadow:0 0 8px rgba(34,197,94,0.8);
+    }
   </style>
 </head>
 <body>
-  <h1>GVX Demo – Admin (Subir y mandar a pantallas)</h1>
-  <p>1. Pon la URL del API. 2. Sube el video. 3. Pulsa "Enviar a pantallas".</p>
+  <div class="card">
+    <span class="pill"><span class="pill-dot"></span>GVX Admin · Programar spot</span>
+    <h1>Programar video en pantallas</h1>
+    <p class="sub">Selecciona la fecha y la hora exacta en que debe empezar el video. El reproductor mostrará un conteo regresivo 1 minuto antes y comenzará justo a tiempo.</p>
+    <div class="grid">
+      <div>
+        <div class="field">
+          <label for="apiUrl">API URL (Koyeb)</label>
+          <input id="apiUrl" type="text" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
+          <div class="tiny">Endpoint de la API GVX en Koyeb.</div>
+        </div>
+        <div class="field">
+          <label>Hora actual (servidor local)</label>
+          <div class="tiny" id="nowLabel">—</div>
+        </div>
+        <div class="field">
+          <label for="date">Fecha de emisión</label>
+          <input id="date" type="date" />
+        </div>
+        <div class="field">
+          <label for="time">Hora de inicio exacta</label>
+          <input id="time" type="time" step="1" />
+          <div class="tiny">Ejemplo: 16:15:00 → el spot se muestra de 16:15:00 a 16:15:15.</div>
+        </div>
+        <div class="field">
+          <label for="file">Archivo de video</label>
+          <input id="file" type="file" accept="video/*" />
+        </div>
+        <div class="field">
+          <label for="start">Inicio dentro del archivo (segundos)</label>
+          <input id="start" type="number" min="0" value="0" />
+        </div>
+        <div class="tiny">La duración final siempre será de 15 segundos estándar.</div>
+        <div class="btn-row">
+          <div class="tiny" id="scheduleLabel"></div>
+          <button class="primary" id="sendBtn">Programar spot</button>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
+      <div>
+        <label>Preview del video actual de pantallas</label>
+        <video id="preview" controls muted></video>
+      </div>
+    </div>
+  </div>
+<script>
+(function(){
+  var nowLabel = document.getElementById("nowLabel");
+  function updateNow(){
+    var d = new Date();
+    nowLabel.textContent = d.toLocaleString();
+  }
+  updateNow();
+  setInterval(updateNow, 1000);
 
-  <form id="admin-form">
-    <label for="apiUrl">API URL</label>
-    <input id="apiUrl" name="apiUrl" type="text" placeholder="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" required />
+  // Set defaults para fecha y hora: ahora + 2 minutos
+  var dateInput = document.getElementById("date");
+  var timeInput = document.getElementById("time");
+  var base = new Date(new Date().getTime() + 2 * 60 * 1000);
+  dateInput.valueAsNumber = base.setHours(0,0,0,0) + (new Date()).getTimezoneOffset()*60*1000; // aproximado
+  var hh = String(base.getHours()).padStart(2,"0");
+  var mm = String(base.getMinutes()).padStart(2,"0");
+  var ss = String(base.getSeconds()).padStart(2,"0");
+  timeInput.value = hh + ":" + mm + ":" + ss;
 
-    <label for="file">Video file</label>
-    <input id="file" name="file" type="file" accept="video/*" required />
+  var apiInput = document.getElementById("apiUrl");
+  var fileInput = document.getElementById("file");
+  var startInput = document.getElementById("start");
+  var sendBtn = document.getElementById("sendBtn");
+  var statusEl = document.getElementById("status");
+  var preview = document.getElementById("preview");
+  var scheduleLabel = document.getElementById("scheduleLabel");
 
-    <label for="start">Start (seconds)</label>
-    <input id="start" name="start" type="number" min="0" value="0" />
+  function makeScheduledIso(){
+    var date = dateInput.value;
+    var time = timeInput.value || "00:00:00";
+    if(!date){return null;}
+    var combined = date + "T" + time;
+    var dt = new Date(combined);
+    if(isNaN(dt.getTime())){return null;}
+    return dt.toISOString();
+  }
 
-    <label for="length">Length (seconds)</label>
-    <input id="length" name="length" type="number" min="1" value="5" />
+  function loadPreview(){
+    var api = apiInput.value.trim().replace(/\/$/,"");
+    if(!api){return;}
+    preview.src = api + "/media/current?ts=" + Date.now();
+  }
+  loadPreview();
 
-    <button id="submitBtn" type="submit" class="primary">Enviar a pantallas</button>
-    <p id="status" class="status"></p>
-  </form>
+  sendBtn.addEventListener("click", function(){
+    statusEl.textContent = "";
+    statusEl.className = "status";
+    var api = apiInput.value.trim().replace(/\/$/,"");
+    if(!api){
+      statusEl.textContent = "Falta API URL.";
+      statusEl.classList.add("err");
+      return;
+    }
+    var file = fileInput.files && fileInput.files[0];
+    if(!file){
+      statusEl.textContent = "Selecciona un archivo de video.";
+      statusEl.classList.add("err");
+      return;
+    }
+    var scheduledIso = makeScheduledIso();
+    if(!scheduledIso){
+      statusEl.textContent = "Fecha u hora inválida.";
+      statusEl.classList.add("err");
+      return;
+    }
 
-  <h2>Preview de lo que ven las pantallas</h2>
-  <video id="previewVideo" controls style="display:none;"></video>
+    var localText = new Date(scheduledIso).toLocaleString();
+    scheduleLabel.textContent = "Programado para: " + localText;
 
-  <script>
-    const form = document.getElementById("admin-form");
-    const statusEl = document.getElementById("status");
-    const submitBtn = document.getElementById("submitBtn");
-    const previewVideo = document.getElementById("previewVideo");
+    var start = Number(startInput.value) || 0;
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      statusEl.textContent = "";
-      statusEl.className = "status";
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Procesando…";
 
-      const apiUrlInput = document.getElementById("apiUrl");
-      const fileInput = document.getElementById("file");
-      const startInput = document.getElementById("start");
-      const lengthInput = document.getElementById("length");
+    var fd = new FormData();
+    fd.append("file", file);
+    fd.append("start", String(start));
+    fd.append("scheduledAt", scheduledIso);
 
-      const apiUrl = apiUrlInput.value.trim();
-      const file = fileInput.files && fileInput.files[0];
-
-      if (!apiUrl) {
-        statusEl.textContent = "Falta API URL.";
-        statusEl.classList.add("error");
-        return;
-      }
-      if (!file) {
-        statusEl.textContent = "Selecciona un video.";
-        statusEl.classList.add("error");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("start", startInput.value || "0");
-      formData.append("length", lengthInput.value || "5");
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Procesando...";
-      statusEl.textContent = "";
-
-      try {
-        const res = await fetch(apiUrl.replace(/\/$/, "") + "/media/trim-set", {
-          method: "POST",
-          body: formData
+    fetch(api + "/media/trim-set", {
+      method: "POST",
+      body: fd
+    })
+      .then(function(res){
+        return res.text().then(function(text){
+          if(!res.ok){
+            throw new Error(text || "Error al programar video");
+          }
+          try{return JSON.parse(text);}catch(_){return {raw:text};}
         });
-
-        const text = await res.text();
-        if (!res.ok) {
-          throw new Error(text || "Error al procesar el video");
-        }
-
-        statusEl.textContent = "Listo. Video actualizado en las pantallas.";
+      })
+      .then(function(data){
+        statusEl.textContent = "Spot programado correctamente para " + localText + ".";
         statusEl.classList.add("ok");
-
-        const previewUrl = apiUrl.replace(/\/$/, "") + "/media/current?ts=" + Date.now();
-        previewVideo.src = previewUrl;
-        previewVideo.style.display = "block";
-        previewVideo.play().catch(() => {});
-      } catch (err) {
+        loadPreview();
+      })
+      .catch(function(err){
         console.error(err);
-        statusEl.textContent = err instanceof Error ? err.message : "Error inesperado";
-        statusEl.classList.add("error");
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Enviar a pantallas";
-      }
-    });
-  </script>
+        statusEl.textContent = err.message || "Error inesperado";
+        statusEl.classList.add("err");
+      })
+      .finally(function(){
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Programar spot";
+      });
+  });
+})();
+</script>
 </body>
 </html>

@@ -7,10 +7,14 @@ import fs from "fs";
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
-
-// Archivo que verán SIEMPRE las pantallas
+// Archivo actual para las pantallas
 const CURRENT_OUTPUT_PATH = "/tmp/gvx-current.mp4";
+// Archivo donde guardamos la programación
+const SCHEDULE_PATH = "/tmp/gvx-schedule.json";
+// Duración estándar del spot
+const TARGET_LENGTH_SECONDS = 15;
+
+app.use(cors());
 
 const upload = multer({ dest: "/tmp" });
 
@@ -22,16 +26,11 @@ function safeUnlink(path: string) {
   fs.unlink(path, () => {});
 }
 
-// Siempre queremos estandarizar a 15 segundos
-const TARGET_LENGTH_SECONDS = 15;
-
-// 1) Endpoint de prueba: recorta y devuelve el mp4 por streaming directo
+// 1) /media/trim -> recorta y devuelve el mp4 por streaming directo
 app.post("/media/trim", upload.single("file"), (req, res) => {
   try {
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ error: 'Missing file field named "file"' });
+      return res.status(400).json({ error: 'Missing file field named "file"' });
     }
 
     const body = req.body as { start?: string };
@@ -85,32 +84,35 @@ app.post("/media/trim", upload.single("file"), (req, res) => {
   } catch (err) {
     console.error(err);
     if (!res.headersSent) {
-      return res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 });
 
-// 2) ADMIN: genera el video de pantallas y lo guarda SIEMPRE en CURRENT_OUTPUT_PATH
+// 2) /media/trim-set -> genera el video estándar y guarda la programación
 app.post("/media/trim-set", upload.single("file"), (req, res) => {
   try {
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ error: 'Missing file field named "file"' });
+      return res.status(400).json({ error: 'Missing file field named "file"' });
     }
 
-    const body = req.body as { start?: string };
+    const body = req.body as { start?: string; scheduledAt?: string };
     const startSec = Number(body.start) || 0;
     const lengthSec = TARGET_LENGTH_SECONDS;
+
+    // Hora programada enviada desde el admin (ISO)
+    let startTimeIso: string;
+    const raw = body.scheduledAt;
+    if (raw && !isNaN(Date.parse(raw))) {
+      startTimeIso = new Date(raw).toISOString();
+    } else {
+      const now = new Date();
+      startTimeIso = new Date(now.getTime() + 60000).toISOString();
+    }
 
     const inputPath = req.file.path;
     const ffmpegPath = process.env.FFMPEG_BIN || "ffmpeg";
 
-    // Estandarización total:
-    // - Recorta 15s desde startSec
-    // - Reescala máx 1280 de ancho
-    // - 30 fps
-    // - H.264 + AAC comprimido
     const args = [
       "-ss", String(startSec),
       "-t", String(lengthSec),
@@ -141,9 +143,18 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
     ff.on("close", (code) => {
       safeUnlink(inputPath);
       if (code === 0) {
-        console.log("✅ Nuevo video para pantallas:", CURRENT_OUTPUT_PATH);
+        const schedule = {
+          startTime: startTimeIso,
+          durationSec: TARGET_LENGTH_SECONDS
+        };
+        try {
+          fs.writeFileSync(SCHEDULE_PATH, JSON.stringify(schedule));
+          console.log("Nueva programación guardada:", schedule);
+        } catch (err) {
+          console.error("Error escribiendo programación:", err);
+        }
         if (!res.headersSent) {
-          return res.json({ ok: true, path: CURRENT_OUTPUT_PATH });
+          return res.json({ ok: true, path: CURRENT_OUTPUT_PATH, schedule });
         }
       } else {
         console.error("FFmpeg exited (trim-set) with code", code);
@@ -165,12 +176,12 @@ app.post("/media/trim-set", upload.single("file"), (req, res) => {
   } catch (err) {
     console.error(err);
     if (!res.headersSent) {
-      return res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 });
 
-// 3) PLAYER: sirve el último video con soporte de Range (para pantallas)
+// 3) /media/current -> sirve el último video (para las pantallas)
 app.get("/media/current", (req, res) => {
   try {
     if (!fs.existsSync(CURRENT_OUTPUT_PATH)) {
@@ -181,7 +192,7 @@ app.get("/media/current", (req, res) => {
     const fileSize = stat.size;
     const range = req.headers.range;
 
-    console.log("📺 /media/current requested. Range:", range || "none", "Size:", fileSize);
+    console.log("GET /media/current Range:", range || "none", "Size:", fileSize);
 
     if (range) {
       const parts = range.replace(/bytes=/, "").split("-");
@@ -196,7 +207,7 @@ app.get("/media/current", (req, res) => {
       const file = fs.createReadStream(CURRENT_OUTPUT_PATH, { start, end });
 
       res.writeHead(206, {
-        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Content-Range": "bytes " + start + "-" + end + "/" + fileSize,
         "Accept-Ranges": "bytes",
         "Content-Length": chunkSize,
         "Content-Type": "video/mp4"
@@ -215,6 +226,32 @@ app.get("/media/current", (req, res) => {
     console.error("Error in /media/current:", err);
     if (!res.headersSent) {
       res.status(500).json({ error: "Error serving current media" });
+    }
+  }
+});
+
+// 4) /schedule/next -> devuelve la programación y los segundos que faltan
+app.get("/schedule/next", (_req, res) => {
+  try {
+    if (!fs.existsSync(SCHEDULE_PATH)) {
+      return res.status(404).json({ error: "No schedule" });
+    }
+    const raw = fs.readFileSync(SCHEDULE_PATH, "utf-8");
+    const schedule = JSON.parse(raw) as { startTime: string; durationSec: number };
+    const now = new Date();
+    const start = new Date(schedule.startTime);
+    const secondsUntilStart = Math.round((start.getTime() - now.getTime()) / 1000);
+
+    return res.json({
+      startTime: schedule.startTime,
+      durationSec: schedule.durationSec,
+      now: now.toISOString(),
+      secondsUntilStart
+    });
+  } catch (err) {
+    console.error("Error in /schedule/next:", err);
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Error reading schedule" });
     }
   }
 });

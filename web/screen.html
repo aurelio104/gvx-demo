@@ -1,62 +1,234 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>GVX Demo - Screen Player</title>
+  <title>GVX Player · Pantalla</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background: #000; color: white; }
-    #config {
-      position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.7);
-      padding: 0.75rem 1rem; border-radius: 12px; z-index: 10;
+    :root{
+      color-scheme:dark;
+      --bg:#020617;
+      --overlay:rgba(15,23,42,0.88);
+      --accent:#38bdf8;
     }
-    label { font-size: 0.9rem; display: block; margin-bottom: 0.25rem; }
-    input[type="text"] {
-      width: 260px; padding: 0.35rem 0.5rem; border-radius: 6px; border: 1px solid #555;
-      background: #111; color: white; box-sizing: border-box;
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:#000;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+      color:#e5e7eb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    button {
-      margin-top: 0.5rem; padding: 0.4rem 0.8rem; border-radius: 999px;
-      border: none; cursor: pointer; font-weight: 600; background: #f97316; color: #111;
+    .wrap{
+      position:relative;
+      width:100%;
+      height:100vh;
+      overflow:hidden;
+      background:#000;
     }
-    video {
-      width: 100vw; height: 100vh; object-fit: contain; background: black;
+    video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      background:#000;
+    }
+    .hud{
+      position:absolute;
+      top:12px;
+      left:12px;
+      right:12px;
+      display:flex;
+      justify-content:space-between;
+      pointer-events:none;
+    }
+    .chip{
+      pointer-events:auto;
+      background:rgba(15,23,42,0.9);
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      border:1px solid rgba(148,163,184,0.5);
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .dot{
+      width:7px;height:7px;border-radius:999px;
+      background:radial-gradient(circle,#22c55e,#16a34a);
+      box-shadow:0 0 8px rgba(34,197,94,0.8);
+    }
+    .status{font-size:11px;opacity:.85;}
+    .countdown{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      padding:16px 20px;
+      border-radius:999px;
+      background:var(--overlay);
+      border:1px solid rgba(148,163,184,0.5);
+      font-size:18px;
+      display:none;
+    }
+    .countdown span{
+      font-variant-numeric:tabular-nums;
+      font-weight:600;
+    }
+    .bottom{
+      position:absolute;
+      bottom:10px;
+      left:10px;
+      right:10px;
+      display:flex;
+      justify-content:space-between;
+      font-size:11px;
+      opacity:.75;
+    }
+    .config-panel{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .config-panel input{
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.6);
+      background:rgba(15,23,42,0.9);
+      color:#e5e7eb;
+      font-size:11px;
+    }
+    .config-panel button{
+      border-radius:999px;
+      border:none;
+      padding:4px 10px;
+      font-size:11px;
+      cursor:pointer;
+      background:linear-gradient(135deg,#38bdf8,#a855f7);
+      color:#020617;
     }
   </style>
 </head>
 <body>
-  <form id="config">
-    <label for="apiUrl">API URL</label>
-    <input id="apiUrl" type="text" placeholder="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
-    <button type="submit">Iniciar player</button>
-  </form>
+  <div class="wrap">
+    <video id="player" muted autoplay playsinline></video>
+    <div class="hud">
+      <div class="chip">
+        <span class="dot"></span>
+        <span>GVX City Screen</span>
+      </div>
+      <div class="chip config-panel">
+        <input id="apiUrl" type="text" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
+        <button id="startBtn">Iniciar player</button>
+      </div>
+    </div>
+    <div id="countdown" class="countdown">
+      Empieza en <span id="countValue">60</span>
+    </div>
+    <div class="bottom">
+      <div class="status" id="statusText">Sin programación</div>
+      <div class="status" id="timeText">—</div>
+    </div>
+  </div>
+<script>
+(function(){
+  var apiInput = document.getElementById("apiUrl");
+  var startBtn = document.getElementById("startBtn");
+  var player = document.getElementById("player");
+  var countdownBox = document.getElementById("countdown");
+  var countValue = document.getElementById("countValue");
+  var statusText = document.getElementById("statusText");
+  var timeText = document.getElementById("timeText");
 
-  <video id="screenVideo" controls autoplay muted loop style="display:none;"></video>
+  var apiBase = "";
+  var pollId = null;
+  var currentVideoUrl = null;
 
-  <script>
-    const form = document.getElementById("config");
-    const apiInput = document.getElementById("apiUrl");
-    const videoEl = document.getElementById("screenVideo");
+  function fmtDuration(s){
+    var sec = Math.max(0, Math.floor(s));
+    var m = Math.floor(sec / 60);
+    var r = sec % 60;
+    if(m > 0){
+      return m + "m " + String(r).padStart(2,"0") + "s";
+    }
+    return r + "s";
+  }
 
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const apiUrl = apiInput.value.trim();
-      if (!apiUrl) return;
+  function updateClock(){
+    var d = new Date();
+    timeText.textContent = d.toLocaleTimeString();
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
 
-      form.style.display = "none";
-      videoEl.style.display = "block";
-
-      function loadVideo() {
-        const url = apiUrl.replace(/\/$/, "") + "/media/current?ts=" + Date.now();
-        videoEl.src = url;
-        videoEl.play().catch(() => {});
+  async function fetchSchedule(){
+    try{
+      var res = await fetch(apiBase + "/schedule/next", { cache: "no-store" });
+      if(!res.ok){
+        return null;
       }
+      return await res.json();
+    }catch(e){
+      return { error:true };
+    }
+  }
 
-      // Carga inicial
-      loadVideo();
-      // Refresca cada 15 segundos por si el admin subió algo nuevo
-      setInterval(loadVideo, 15000);
-    });
-  </script>
+  function ensureVideoPlaying(){
+    var url = apiBase + "/media/current?ts=" + Date.now();
+    if(currentVideoUrl !== url){
+      currentVideoUrl = url;
+      player.src = url;
+    }
+    player.play().catch(function(){});
+  }
+
+  async function tick(){
+    if(!apiBase){return;}
+    var schedule = await fetchSchedule();
+    if(!schedule || schedule.error){
+      statusText.textContent = "Sin programación o error de conexión";
+      countdownBox.style.display = "none";
+      return;
+    }
+    var seconds = schedule.secondsUntilStart;
+    var duration = schedule.durationSec || 15;
+    var startLocal = new Date(schedule.startTime).toLocaleString();
+
+    if(seconds > 60){
+      statusText.textContent = "Próxima emisión: " + startLocal + " (faltan " + fmtDuration(seconds) + ")";
+      countdownBox.style.display = "none";
+      player.pause();
+    }else if(seconds <= 60 && seconds > 0){
+      statusText.textContent = "Spot programado para " + startLocal;
+      countdownBox.style.display = "block";
+      countValue.textContent = fmtDuration(seconds);
+      player.pause();
+    }else if(seconds <= 0 && seconds > -duration){
+      statusText.textContent = "EMITIENDO · " + startLocal;
+      countdownBox.style.display = "none";
+      ensureVideoPlaying();
+    }else{
+      statusText.textContent = "Slot terminado. Esperando próxima programación.";
+      countdownBox.style.display = "none";
+      player.pause();
+    }
+  }
+
+  startBtn.addEventListener("click", function(){
+    var val = apiInput.value.trim().replace(/\/$/,"");
+    if(!val){
+      alert("Configura la API URL primero.");
+      return;
+    }
+    apiBase = val;
+    statusText.textContent = "Player conectado a API. Esperando programación…";
+    if(pollId){clearInterval(pollId);}
+    pollId = setInterval(tick, 1000);
+    tick();
+  });
+})();
+</script>
 </body>
 </html>
