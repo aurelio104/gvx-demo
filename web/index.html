@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>GVX City Screens</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#020617" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: radial-gradient(circle at top, #1d2433 0, #020617 45%, #000 100%);
+      --glass: rgba(15, 23, 42, 0.82);
+      --border: rgba(148, 163, 184, 0.25);
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.2);
+      --danger: #f97373;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
+      background:var(--bg);
+      color:#e5e7eb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+    .app{
+      width:100%;
+      max-width:960px;
+      border-radius:24px;
+      padding:16px;
+      background:linear-gradient(135deg,rgba(15,23,42,0.92),rgba(15,23,42,0.75));
+      box-shadow:0 18px 60px rgba(0,0,0,0.65);
+      border:1px solid var(--border);
+      backdrop-filter:blur(24px) saturate(160%);
+    }
+    header{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .brand-badge{
+      width:32px;
+      height:32px;
+      border-radius:14px;
+      background:radial-gradient(circle at 0 0,#38bdf8,#0ea5e9 30%,#1f2937 70%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:18px;
+      color:#0b1120;
+      box-shadow:0 0 0 1px rgba(15,23,42,0.6);
+    }
+    .brand-title{
+      font-size:18px;
+      font-weight:600;
+    }
+    .brand-sub{
+      font-size:11px;
+      opacity:.7;
+    }
+    .pill{
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:11px;
+      background:rgba(15,23,42,0.9);
+      border:1px solid rgba(148,163,184,0.5);
+      display:flex;
+      align-items:center;
+      gap:6px;
+      white-space:nowrap;
+    }
+    .pill-dot{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:radial-gradient(circle,#22c55e,#16a34a);
+      box-shadow:0 0 8px rgba(34,197,94,0.9);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0,2fr);
+      gap:16px;
+    }
+    @media (max-width:800px){
+      .grid{grid-template-columns:1fr;}
+    }
+    .card{
+      background:var(--glass);
+      border-radius:20px;
+      padding:14px 14px 16px;
+      border:1px solid var(--border);
+    }
+    .card-title{
+      font-size:15px;
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    .card-sub{
+      font-size:11px;
+      opacity:.7;
+      margin-bottom:12px;
+    }
+    .field{
+      margin-bottom:10px;
+    }
+    label{
+      display:block;
+      font-size:11px;
+      margin-bottom:3px;
+      opacity:.85;
+    }
+    input,select{
+      width:100%;
+      background:rgba(15,23,42,0.9);
+      border-radius:12px;
+      border:1px solid rgba(51,65,85,0.9);
+      padding:8px 10px;
+      color:#e5e7eb;
+      font-size:13px;
+      outline:none;
+    }
+    input:focus,select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(56,189,248,0.6);
+    }
+    input[type="time"]{
+      font-variant-numeric:tabular-nums;
+    }
+    input[type="range"]{
+      padding:0;
+      background:transparent;
+      border:none;
+    }
+    .stepper{
+      display:flex;
+      gap:6px;
+      margin-bottom:10px;
+    }
+    .step-dot{
+      flex:1;
+      height:4px;
+      border-radius:999px;
+      background:rgba(31,41,55,0.9);
+      overflow:hidden;
+      position:relative;
+    }
+    .step-dot.active::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg,#38bdf8,#a855f7);
+    }
+    .step-labels{
+      display:flex;
+      justify-content:space-between;
+      font-size:10px;
+      opacity:.65;
+      margin-bottom:10px;
+    }
+    .step-labels span.active{
+      opacity:1;
+      color:#e5e7eb;
+    }
+    .btn-row{
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:8px;
+    }
+    button{
+      border-radius:999px;
+      border:none;
+      padding:7px 14px;
+      font-size:13px;
+      font-weight:500;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background:rgba(15,23,42,0.9);
+      color:#e5e7eb;
+    }
+    button.primary{
+      background:linear-gradient(135deg,#38bdf8,#a855f7);
+      color:#020617;
+      box-shadow:0 10px 30px rgba(56,189,248,0.55);
+    }
+    button[disabled]{
+      opacity:.5;
+      cursor:default;
+      box-shadow:none;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:var(--accent-soft);
+      font-size:11px;
+      color:#7dd3fc;
+      margin-bottom:6px;
+    }
+    .error{
+      font-size:11px;
+      color:var(--danger);
+      margin-top:4px;
+      white-space:pre-wrap;
+    }
+    .summary-row{
+      display:flex;
+      justify-content:space-between;
+      font-size:12px;
+      margin-bottom:4px;
+      opacity:.9;
+    }
+    .summary-row span:first-child{
+      opacity:.7;
+    }
+    .summary-id{
+      font-family:ui-monospace,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:12px;
+    }
+    .preview-video{
+      width:100%;
+      border-radius:18px;
+      border:1px solid rgba(30,64,175,0.6);
+      background:#000;
+      max-height:260px;
+      object-fit:contain;
+    }
+    .tiny{
+      font-size:10px;
+      opacity:.6;
+    }
+    .step-labels span{transition:opacity .2s ease,color .2s ease;}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-badge">G</div>
+        <div>
+          <div class="brand-title">GVX City Screens</div>
+          <div class="brand-sub">Reserva 15 segundos en pantallas urbanas</div>
+        </div>
+      </div>
+      <div class="pill">
+        <div class="pill-dot"></div>
+        <span>Online · Admin</span>
+      </div>
+    </header>
+
+    <div class="stepper">
+      <div class="step-dot" id="dot-1"></div>
+      <div class="step-dot" id="dot-2"></div>
+      <div class="step-dot" id="dot-3"></div>
+    </div>
+    <div class="step-labels">
+      <span id="label-1">Fecha & pantalla</span>
+      <span id="label-2">Video</span>
+      <span id="label-3">Pago</span>
+    </div>
+
+    <div class="grid">
+      <section class="card" id="step-1">
+        <div class="badge">Paso 1 · Agenda tu slot</div>
+        <div class="card-title">Fecha y pantalla</div>
+        <div class="card-sub">Elige cuándo y dónde aparecerá tu anuncio de 15 segundos.</div>
+
+        <div class="field">
+          <label for="apiUrl">API URL (demo)</label>
+          <input id="apiUrl" type="text" value="http://localhost:3001" />
+          <div class="tiny">En producción pon aquí la URL del API en Koyeb.</div>
+        </div>
+
+        <div class="field">
+          <label for="date">Fecha</label>
+          <input id="date" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="city">Ciudad</label>
+          <select id="city">
+            <option value="maracay">Maracay</option>
+            <option value="caracas">Caracas</option>
+            <option value="valencia">Valencia</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="screen">Pantalla</label>
+          <select id="screen">
+            <option value="aviadores-main">CC Los Aviadores · Entrada principal</option>
+            <option value="aviadores-food">CC Los Aviadores · Food Court</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="time">Hora (inicio)</label>
+          <input id="time" type="time" step="1" value="15:00:00" />
+          <div class="tiny">El sistema bloquea automáticamente 15 segundos desde esta hora.</div>
+        </div>
+
+        <div class="btn-row">
+          <button class="primary" id="step1-next">Continuar</button>
+        </div>
+        <div id="step1-error" class="error"></div>
+      </section>
+
+      <section class="card" id="step-2" style="display:none;">
+        <div class="badge">Paso 2 · Sube tu video</div>
+        <div class="card-title">Clip de 15 segundos</div>
+        <div class="card-sub">Sube tu video y ajusta el inicio. El sistema lo corta a 15 segundos.</div>
+
+        <div class="field">
+          <label for="file">Archivo de video</label>
+          <input id="file" type="file" accept="video/*" />
+        </div>
+
+        <div class="field">
+          <label for="startRange">Inicio dentro del video (segundos)</label>
+          <input id="startRange" type="range" min="0" max="45" value="0" />
+          <div class="tiny">Después de cargar el video, el máximo se adapta a la duración.</div>
+        </div>
+
+        <div class="field">
+          <label>Preview original</label>
+          <video id="originalPreview" class="preview-video" controls muted></video>
+        </div>
+
+        <div class="field">
+          <label>Preview recorte (pantallas)</label>
+          <video id="trimPreview" class="preview-video" controls muted></video>
+          <div class="tiny">Se actualiza cuando procesas el video.</div>
+        </div>
+
+        <div class="btn-row">
+          <button id="step2-back">Atrás</button>
+          <button class="primary" id="processVideo">Procesar video</button>
+        </div>
+        <div id="step2-error" class="error"></div>
+      </section>
+
+      <section class="card" id="step-3" style="display:none;">
+        <div class="badge">Paso 3 · Pago</div>
+        <div class="card-title">Confirmación y pago</div>
+        <div class="card-sub">Revisa los detalles y simula el pago para este demo.</div>
+
+        <div class="summary-row">
+          <span>Fecha</span><span id="summary-date">—</span>
+        </div>
+        <div class="summary-row">
+          <span>Ciudad</span><span id="summary-city">—</span>
+        </div>
+        <div class="summary-row">
+          <span>Pantalla</span><span id="summary-screen">—</span>
+        </div>
+        <div class="summary-row">
+          <span>Horario</span><span id="summary-time">—</span>
+        </div>
+        <div class="summary-row">
+          <span>Duración</span><span>15 s</span>
+        </div>
+        <div class="summary-row">
+          <span>Precio demo</span><span id="summary-price">USD 15.00</span>
+        </div>
+
+        <hr style="border:none;border-top:1px dashed rgba(148,163,184,0.35);margin:10px 0 8px;" />
+
+        <div class="summary-row">
+          <span>ID de orden</span><span class="summary-id" id="summary-id">—</span>
+        </div>
+
+        <p class="tiny">En el sistema real aquí se integraría Stripe / pasarela y la orden quedaría pagada y guardada en base de datos.</p>
+
+        <div class="btn-row">
+          <button id="step3-back">Atrás</button>
+          <button class="primary" id="fakePay">Simular pago</button>
+        </div>
+        <div id="step3-error" class="error"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // PWA: registra service worker si existe
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/sw.js").catch(function (err) {
+          console.warn("SW registration failed", err);
+        });
+      });
+    }
+
+    const state = {
+      step: 1,
+      booking: {
+        date: null,
+        city: null,
+        cityId: null,
+        screen: null,
+        screenId: null,
+        time: null,
+        apiUrl: null,
+        startOffset: 0,
+        orderId: null
+      }
+    };
+
+    const dot1 = document.getElementById("dot-1");
+    const dot2 = document.getElementById("dot-2");
+    const dot3 = document.getElementById("dot-3");
+    const label1 = document.getElementById("label-1");
+    const label2 = document.getElementById("label-2");
+    const label3 = document.getElementById("label-3");
+
+    function updateStepper() {
+      [dot1, dot2, dot3].forEach(function (el) { el.classList.remove("active"); });
+      [label1, label2, label3].forEach(function (el) { el.classList.remove("active"); });
+      if (state.step === 1) { dot1.classList.add("active"); label1.classList.add("active"); }
+      if (state.step === 2) { dot1.classList.add("active"); dot2.classList.add("active"); label2.classList.add("active"); }
+      if (state.step === 3) { dot1.classList.add("active"); dot2.classList.add("active"); dot3.classList.add("active"); label3.classList.add("active"); }
+    }
+
+    function showStep(step) {
+      state.step = step;
+      updateStepper();
+      document.getElementById("step-1").style.display = step === 1 ? "block" : "none";
+      document.getElementById("step-2").style.display = step === 2 ? "block" : "none";
+      document.getElementById("step-3").style.display = step === 3 ? "block" : "none";
+    }
+
+    updateStepper();
+
+    // Paso 1
+    document.getElementById("step1-next").addEventListener("click", function () {
+      var apiUrl = document.getElementById("apiUrl").value.trim();
+      var date = document.getElementById("date").value;
+      var citySel = document.getElementById("city");
+      var screenSel = document.getElementById("screen");
+      var time = document.getElementById("time").value;
+      var errEl = document.getElementById("step1-error");
+      errEl.textContent = "";
+
+      if (!apiUrl) {
+        errEl.textContent = "Falta la API URL.";
+        return;
+      }
+      if (!date) {
+        errEl.textContent = "Selecciona una fecha.";
+        return;
+      }
+      if (!time) {
+        errEl.textContent = "Selecciona una hora de inicio.";
+        return;
+      }
+
+      state.booking.apiUrl = apiUrl.replace(/\/$/, "");
+      state.booking.date = date;
+      state.booking.city = citySel.options[citySel.selectedIndex].text;
+      state.booking.cityId = citySel.value;
+      state.booking.screen = screenSel.options[screenSel.selectedIndex].text;
+      state.booking.screenId = screenSel.value;
+      state.booking.time = time;
+      showStep(2);
+    });
+
+    // Paso 2: manejo de video
+    var fileInput = document.getElementById("file");
+    var startRange = document.getElementById("startRange");
+    var originalPreview = document.getElementById("originalPreview");
+    var trimPreview = document.getElementById("trimPreview");
+    var processBtn = document.getElementById("processVideo");
+    var step2Error = document.getElementById("step2-error");
+
+    var originalUrl = null;
+
+    fileInput.addEventListener("change", function () {
+      step2Error.textContent = "";
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      if (originalUrl) {
+        URL.revokeObjectURL(originalUrl);
+      }
+      originalUrl = URL.createObjectURL(file);
+      originalPreview.src = originalUrl;
+      originalPreview.play().catch(function () {});
+      originalPreview.onloadedmetadata = function () {
+        var dur = originalPreview.duration || 60;
+        var maxStart = Math.max(0, dur - 15);
+        startRange.max = String(Math.floor(maxStart));
+      };
+    });
+
+    startRange.addEventListener("input", function () {
+      state.booking.startOffset = Number(startRange.value) || 0;
+      if (!isNaN(originalPreview.currentTime)) {
+        originalPreview.currentTime = state.booking.startOffset;
+      }
+    });
+
+    document.getElementById("step2-back").addEventListener("click", function () {
+      showStep(1);
+    });
+
+    processBtn.addEventListener("click", function () {
+      step2Error.textContent = "";
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) {
+        step2Error.textContent = "Selecciona un archivo de video.";
+        return;
+      }
+      if (!state.booking.apiUrl) {
+        step2Error.textContent = "Falta API URL (Paso 1).";
+        return;
+      }
+
+      processBtn.disabled = true;
+      processBtn.textContent = "Procesando…";
+
+      var fd = new FormData();
+      fd.append("file", file);
+      fd.append("start", String(state.booking.startOffset || 0));
+      fd.append("length", "15");
+
+      fetch(state.booking.apiUrl + "/media/trim-set", {
+        method: "POST",
+        body: fd
+      })
+        .then(function (res) {
+          return res.text().then(function (text) {
+            if (!res.ok) {
+              throw new Error(text || "Error al procesar video");
+            }
+            return text;
+          });
+        })
+        .then(function () {
+          var url = state.booking.apiUrl + "/media/current?ts=" + Date.now();
+          trimPreview.src = url;
+          trimPreview.play().catch(function () {});
+          showStep(3);
+          fillSummary();
+        })
+        .catch(function (err) {
+          console.error(err);
+          step2Error.textContent = err.message || "Error inesperado";
+        })
+        .finally(function () {
+          processBtn.disabled = false;
+          processBtn.textContent = "Procesar video";
+        });
+    });
+
+    // Paso 3
+    function fillSummary() {
+      var s = state.booking;
+      document.getElementById("summary-date").textContent = s.date || "—";
+      document.getElementById("summary-city").textContent = s.city || "—";
+      document.getElementById("summary-screen").textContent = s.screen || "—";
+      document.getElementById("summary-time").textContent =
+        (s.time || "—") + " · 15 s";
+      var id = "BK-" + Date.now().toString(36).toUpperCase();
+      s.orderId = id;
+      document.getElementById("summary-id").textContent = id;
+    }
+
+    document.getElementById("step3-back").addEventListener("click", function () {
+      showStep(2);
+    });
+
+    document.getElementById("fakePay").addEventListener("click", function () {
+      var btn = document.getElementById("fakePay");
+      var errEl = document.getElementById("step3-error");
+      errEl.textContent = "";
+      btn.disabled = true;
+      btn.textContent = "Procesando pago…";
+
+      setTimeout(function () {
+        btn.textContent = "Pagado ✅";
+        errEl.textContent =
+          "Pago simulado para el demo. En producción aquí se confirmaría el pago real y se guardaría la orden " +
+          (state.booking.orderId || "");
+      }, 900);
+    });
+  </script>
+</body>
+</html>

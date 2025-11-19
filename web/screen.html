@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GVX Demo - Screen Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; background: #000; color: white; }
+    #config {
+      position: absolute; top: 1rem; left: 1rem; background: rgba(0,0,0,0.7);
+      padding: 0.75rem 1rem; border-radius: 12px; z-index: 10;
+    }
+    label { font-size: 0.9rem; display: block; margin-bottom: 0.25rem; }
+    input[type="text"] {
+      width: 260px; padding: 0.35rem 0.5rem; border-radius: 6px; border: 1px solid #555;
+      background: #111; color: white; box-sizing: border-box;
+    }
+    button {
+      margin-top: 0.5rem; padding: 0.4rem 0.8rem; border-radius: 999px;
+      border: none; cursor: pointer; font-weight: 600; background: #f97316; color: #111;
+    }
+    video {
+      width: 100vw; height: 100vh; object-fit: contain; background: black;
+    }
+  </style>
+</head>
+<body>
+  <form id="config">
+    <label for="apiUrl">API URL</label>
+    <input id="apiUrl" type="text" placeholder="http://localhost:3001" value="http://localhost:3001" />
+    <button type="submit">Iniciar player</button>
+  </form>
+
+  <video id="screenVideo" controls autoplay muted loop style="display:none;"></video>
+
+  <script>
+    const form = document.getElementById("config");
+    const apiInput = document.getElementById("apiUrl");
+    const videoEl = document.getElementById("screenVideo");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const apiUrl = apiInput.value.trim();
+      if (!apiUrl) return;
+
+      form.style.display = "none";
+      videoEl.style.display = "block";
+
+      function loadVideo() {
+        const url = apiUrl.replace(/\/$/, "") + "/media/current?ts=" + Date.now();
+        videoEl.src = url;
+        videoEl.play().catch(() => {});
+      }
+
+      // Carga inicial
+      loadVideo();
+      // Refresca cada 15 segundos por si el admin subió algo nuevo
+      setInterval(loadVideo, 15000);
+    });
+  </script>
+</body>
+</html>

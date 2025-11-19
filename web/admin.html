@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>GVX Demo - Admin (Upload)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif; margin: 2rem; max-width: 720px; }
+    h1 { font-size: 1.8rem; margin-bottom: 1rem; }
+    form { border: 1px solid #ddd; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
+    label { display: block; font-size: 0.9rem; margin-bottom: 0.25rem; }
+    input[type="number"], input[type="file"], input[type="text"] {
+      width: 100%; padding: 0.4rem 0.5rem; margin-bottom: 0.75rem;
+      border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box;
+    }
+    button { padding: 0.6rem 1.2rem; border-radius: 999px; border: none; cursor: pointer; font-weight: 600; }
+    button:disabled { opacity: 0.6; cursor: default; }
+    .primary { background: #111827; color: white; }
+    .status { font-size: 0.9rem; margin-top: 0.5rem; white-space: pre-wrap; }
+    .status.ok { color: #15803d; }
+    .status.error { color: #b91c1c; }
+    video { width: 100%; border-radius: 12px; border: 1px solid #ddd; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>GVX Demo – Admin (Subir y mandar a pantallas)</h1>
+  <p>1. Pon la URL del API. 2. Sube el video. 3. Pulsa "Enviar a pantallas".</p>
+
+  <form id="admin-form">
+    <label for="apiUrl">API URL</label>
+    <input id="apiUrl" name="apiUrl" type="text" placeholder="http://localhost:3001" value="http://localhost:3001" required />
+
+    <label for="file">Video file</label>
+    <input id="file" name="file" type="file" accept="video/*" required />
+
+    <label for="start">Start (seconds)</label>
+    <input id="start" name="start" type="number" min="0" value="0" />
+
+    <label for="length">Length (seconds)</label>
+    <input id="length" name="length" type="number" min="1" value="5" />
+
+    <button id="submitBtn" type="submit" class="primary">Enviar a pantallas</button>
+    <p id="status" class="status"></p>
+  </form>
+
+  <h2>Preview de lo que ven las pantallas</h2>
+  <video id="previewVideo" controls style="display:none;"></video>
+
+  <script>
+    const form = document.getElementById("admin-form");
+    const statusEl = document.getElementById("status");
+    const submitBtn = document.getElementById("submitBtn");
+    const previewVideo = document.getElementById("previewVideo");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.textContent = "";
+      statusEl.className = "status";
+
+      const apiUrlInput = document.getElementById("apiUrl");
+      const fileInput = document.getElementById("file");
+      const startInput = document.getElementById("start");
+      const lengthInput = document.getElementById("length");
+
+      const apiUrl = apiUrlInput.value.trim();
+      const file = fileInput.files && fileInput.files[0];
+
+      if (!apiUrl) {
+        statusEl.textContent = "Falta API URL.";
+        statusEl.classList.add("error");
+        return;
+      }
+      if (!file) {
+        statusEl.textContent = "Selecciona un video.";
+        statusEl.classList.add("error");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("start", startInput.value || "0");
+      formData.append("length", lengthInput.value || "5");
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Procesando...";
+      statusEl.textContent = "";
+
+      try {
+        const res = await fetch(apiUrl.replace(/\/$/, "") + "/media/trim-set", {
+          method: "POST",
+          body: formData
+        });
+
+        const text = await res.text();
+        if (!res.ok) {
+          throw new Error(text || "Error al procesar el video");
+        }
+
+        statusEl.textContent = "Listo. Video actualizado en las pantallas.";
+        statusEl.classList.add("ok");
+
+        const previewUrl = apiUrl.replace(/\/$/, "") + "/media/current?ts=" + Date.now();
+        previewVideo.src = previewUrl;
+        previewVideo.style.display = "block";
+        previewVideo.play().catch(() => {});
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = err instanceof Error ? err.message : "Error inesperado";
+        statusEl.classList.add("error");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Enviar a pantallas";
+      }
+    });
+  </script>
+</body>
+</html>
