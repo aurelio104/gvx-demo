@@ -126,6 +126,7 @@
       display:flex;
       justify-content:space-between;
       gap:8px;
+      flex-wrap:wrap;
     }
     .btn{
       border-radius:999px;
@@ -323,7 +324,10 @@
             </div>
             <div class="actions">
               <button class="btn" id="backTo1">Volver</button>
-              <button class="btn primary" id="processBtn">Procesar preview</button>
+              <div style="display:flex;gap:8px;">
+                <button class="btn" id="toStep3" disabled>Continuar al pago</button>
+                <button class="btn primary" id="processBtn">Procesar preview</button>
+              </div>
             </div>
             <div id="status2" class="status"></div>
           </div>
@@ -403,10 +407,12 @@
   var startInput = document.getElementById("startInput");
   var status2 = document.getElementById("status2");
   var previewVideo = document.getElementById("previewVideo");
+  var toStep3Btn = document.getElementById("toStep3");
 
   var summaryText = document.getElementById("summaryText");
   var status3 = document.getElementById("status3");
   var previewFinal = document.getElementById("previewFinal");
+  var backTo2 = document.getElementById("backTo2");
 
   function updateClock(){
     nowLabel.textContent = new Date().toLocaleString();
@@ -571,6 +577,7 @@
   fileInput.addEventListener("change", function(){
     status2.textContent = "";
     status2.className = "status";
+    toStep3Btn.disabled = true;
     if(fileInput.files && fileInput.files[0]){
       state.file = fileInput.files[0];
     }else{
@@ -602,6 +609,7 @@
     var btn = this;
     btn.disabled = true;
     btn.textContent = "Procesando…";
+    toStep3Btn.disabled = true;
 
     fetch(api + "/media/trim", {
       method:"POST",
@@ -613,8 +621,9 @@
       var url = URL.createObjectURL(blob);
       previewVideo.src = url;
       previewVideo.play().catch(function(){});
-      status2.textContent = "Preview generada correctamente.";
+      status2.textContent = "Preview generada correctamente. Ahora puedes continuar al pago.";
       status2.classList.add("ok");
+      toStep3Btn.disabled = false;
     }).catch(function(err){
       console.error(err);
       status2.textContent = err.message || "Error inesperado";
@@ -625,47 +634,15 @@
     });
   });
 
-  // Paso 2 -> Paso 3
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  document.getElementById("backTo1").onclick = function(){ setStep(1); };
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  // Navegar a Paso 3 cuando hay preview
-  document.getElementById("backTo2"); // placeholder para no romper nada
-
-  // Botón "Simular pago" en Paso 3
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo1").addEventListener("click", function(){
-    setStep(1);
-  });
-
-  document.getElementById("processBtn").addEventListener("dblclick", function(){
-    // atajo: si ya hay preview, permite avanzar
-    if(previewVideo.src){
-      setStep(3);
-      fillSummary();
+  // NUEVO: botón normal para ir a Paso 3
+  toStep3Btn.addEventListener("click", function(){
+    if(!previewVideo.src){
+      status2.textContent = "Genera primero la preview antes de continuar.";
+      status2.classList.add("err");
+      return;
     }
+    fillSummary();
+    setStep(3);
   });
 
   function fillSummary(){
@@ -676,18 +653,12 @@
       " · Duración: 15 segundos.";
   }
 
-  document.getElementById("toStep2").addEventListener("dblclick", function(){
-    // por si quieres saltar rápido, no obligatorio
+  // Navegación atrás desde Paso 3
+  backTo2.addEventListener("click", function(){
     setStep(2);
   });
 
-  document.getElementById("backTo2").addEventListener("dblclick", function(){
-    setStep(3);
-    fillSummary();
-  });
-
   // Botón de pago real (Paso 3)
-  document.getElementById("backTo2").removeEventListener("dblclick", function(){});
   var payBtn = document.getElementById("payBtn");
   payBtn.addEventListener("click", function(){
     status3.textContent = "";
@@ -745,9 +716,11 @@
     });
   });
 
-  // Navegar normal a paso 3 cuando ya hay preview (click en título de resumen)
+  // Permitir ir a Paso 3 tocando el resumen (cuando ya se generó)
   summaryText.addEventListener("click", function(){
-    setStep(3);
+    if(summaryText.textContent && summaryText.textContent !== "—"){
+      setStep(3);
+    }
   });
 })();
 </script>
