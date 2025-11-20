@@ -325,7 +325,7 @@
             <div class="actions">
               <button class="btn" id="backTo1">Volver</button>
               <div style="display:flex;gap:8px;">
-                <button class="btn" id="toStep3" disabled>Continuar al pago</button>
+                <button class="btn" id="toStep3" disabled>Continuar al paso 3</button>
                 <button class="btn primary" id="processBtn">Procesar preview</button>
               </div>
             </div>
@@ -621,7 +621,7 @@
       var url = URL.createObjectURL(blob);
       previewVideo.src = url;
       previewVideo.play().catch(function(){});
-      status2.textContent = "Preview generada correctamente. Ahora puedes continuar al pago.";
+      status2.textContent = "Preview generada correctamente. Ahora puedes continuar al paso 3.";
       status2.classList.add("ok");
       toStep3Btn.disabled = false;
     }).catch(function(err){
@@ -634,7 +634,15 @@
     });
   });
 
-  // NUEVO: botón normal para ir a Paso 3
+  // Botón para pasar a Paso 3
+  function fillSummary(){
+    var when = state.scheduledAtIso ? new Date(state.scheduledAtIso).toLocaleString() : "—";
+    summaryText.textContent =
+      "Ciudad: " + state.city + " · Pantalla: " + state.screen +
+      " · Slot: " + when +
+      " · Duración: 15 segundos.";
+  }
+
   toStep3Btn.addEventListener("click", function(){
     if(!previewVideo.src){
       status2.textContent = "Genera primero la preview antes de continuar.";
@@ -645,20 +653,12 @@
     setStep(3);
   });
 
-  function fillSummary(){
-    var when = state.scheduledAtIso ? new Date(state.scheduledAtIso).toLocaleString() : "—";
-    summaryText.textContent =
-      "Ciudad: " + state.city + " · Pantalla: " + state.screen +
-      " · Slot: " + when +
-      " · Duración: 15 segundos.";
-  }
-
   // Navegación atrás desde Paso 3
   backTo2.addEventListener("click", function(){
     setStep(2);
   });
 
-  // Botón de pago real (Paso 3)
+  // Botón de pago (Paso 3)
   var payBtn = document.getElementById("payBtn");
   payBtn.addEventListener("click", function(){
     status3.textContent = "";
@@ -716,7 +716,7 @@
     });
   });
 
-  // Permitir ir a Paso 3 tocando el resumen (cuando ya se generó)
+  // Permitir ir a Paso 3 tocando el resumen (si ya hay datos)
   summaryText.addEventListener("click", function(){
     if(summaryText.textContent && summaryText.textContent !== "—"){
       setStep(3);
@@ -726,4 +726,3 @@
 </script>
 </body>
 </html>
-
