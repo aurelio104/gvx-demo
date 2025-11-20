@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>GVX City Screens · Reserva 15 segundos</title>
+  <title>GVX City Screens · Reserva tu spot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root{
@@ -11,88 +11,79 @@
       --card:rgba(15,23,42,0.96);
       --border:rgba(148,163,184,0.45);
       --accent:#38bdf8;
-      --accent2:#a855f7;
-      --ok:#22c55e;
-      --err:#fb7185;
+      --accent-soft:rgba(56,189,248,0.18);
+      --danger:#fb7185;
+      --ok:#4ade80;
     }
     *{box-sizing:border-box;}
     body{
       margin:0;
       min-height:100vh;
-      background:radial-gradient(circle at top,#0f172a 0,#020617 50%,#000 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:radial-gradient(circle at top,#1e293b 0,#020617 55%,#000 100%);
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;
       color:#e5e7eb;
-      display:flex;
-      align-items:center;
-      justify-content:center;
       padding:16px;
     }
-    .app{
+    .shell{
       width:100%;
-      max-width:1040px;
+      max-width:960px;
+      background:var(--card);
+      border-radius:28px;
+      border:1px solid var(--border);
+      box-shadow:0 26px 80px rgba(0,0,0,0.7);
+      backdrop-filter:blur(22px) saturate(160%);
+      padding:20px 22px 22px;
     }
     header{
-      margin-bottom:12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:14px;
+      gap:12px;
     }
-    header h1{
-      margin:0;
-      font-size:22px;
+    .brand{
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:10px;
     }
-    header h1 span.logo{
-      width:28px;height:28px;border-radius:999px;
-      background:linear-gradient(135deg,#38bdf8,#a855f7);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:700;
-      color:#020617;
+    .logo{
+      width:30px;height:30px;border-radius:999px;
+      background:radial-gradient(circle at 30% 0,#38bdf8,#6366f1 55%,#0f172a 100%);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:18px;color:#e5e7eb;
+      box-shadow:0 0 0 2px rgba(15,23,42,0.8);
     }
-    header p{
-      margin:4px 0 0;
-      font-size:13px;
+    h1{margin:0;font-size:18px;}
+    .subtitle{margin:0;font-size:12px;opacity:.75;}
+    .steps-bar{
+      position:relative;
+      height:4px;
+      border-radius:999px;
+      background:rgba(31,41,55,0.85);
+      overflow:hidden;
+      margin-bottom:18px;
+    }
+    .steps-bar-fill{
+      position:absolute;left:0;top:0;bottom:0;
+      width:33.334%;
+      background:linear-gradient(90deg,#38bdf8,#a855f7);
+      transition:width .25s ease-out;
+    }
+    .steps-header{
+      display:flex;
+      gap:10px;
+      margin-bottom:8px;
+      font-size:11px;
       opacity:.75;
     }
-    .card{
-      background:var(--card);
-      border-radius:24px;
-      border:1px solid var(--border);
-      padding:16px 18px 18px;
-      box-shadow:0 22px 60px rgba(0,0,0,0.65);
-      backdrop-filter:blur(24px) saturate(160%);
-    }
-    .steps{
-      display:flex;
-      gap:8px;
-      margin-bottom:12px;
-      font-size:11px;
-    }
-    .step-pill{
-      flex:1;
-      padding:5px 10px;
-      border-radius:999px;
-      border:1px solid rgba(51,65,85,0.9);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      background:rgba(15,23,42,0.9);
-      opacity:.6;
-    }
-    .step-pill.active{
-      border-color:var(--accent);
-      background:linear-gradient(135deg,rgba(56,189,248,0.12),rgba(168,85,247,0.18));
-      opacity:1;
-    }
-    .step-pill span:nth-child(1){font-weight:500;}
-    .step-pill span:nth-child(2){font-size:10px;opacity:.8;}
-    .step-panel{display:none;}
-    .step-panel.active{display:block;}
+    .steps-header span.active{opacity:1;font-weight:600;}
     .grid{
       display:grid;
-      grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
-      gap:16px;
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap:18px;
     }
     @media (max-width:900px){
       .grid{grid-template-columns:1fr;}
@@ -105,650 +96,565 @@
     }
     input,select,textarea{
       width:100%;
-      border-radius:12px;
+      border-radius:14px;
       border:1px solid rgba(51,65,85,0.9);
       background:rgba(15,23,42,0.96);
-      padding:7px 10px;
+      padding:8px 11px;
       color:#e5e7eb;
       font-size:13px;
       outline:none;
     }
     input:focus,select:focus,textarea:focus{
       border-color:var(--accent);
-      box-shadow:0 0 0 1px rgba(56,189,248,0.7);
+      box-shadow:0 0 0 1px rgba(56,189,248,0.6);
     }
-    input[type="file"]{padding:6px 8px;}
-    input[type="time"]{font-variant-numeric:tabular-nums;}
+    input[type="file"]{padding:6px 9px;}
+    input[type="range"]{
+      padding:0;
+      background:transparent;
+    }
     .field{margin-bottom:10px;}
-    .tiny{font-size:10px;opacity:.65;}
-    .actions{
-      margin-top:10px;
-      display:flex;
-      justify-content:space-between;
-      gap:8px;
-    }
-    .btn{
+    .tiny{font-size:10px;opacity:.6;}
+    .row{display:flex;gap:8px;}
+    .row > *{flex:1;}
+    button{
       border-radius:999px;
       border:none;
-      padding:7px 16px;
+      padding:8px 16px;
       font-size:13px;
       font-weight:500;
       cursor:pointer;
       background:#0f172a;
       color:#e5e7eb;
     }
-    .btn.primary{
-      background:linear-gradient(135deg,var(--accent),var(--accent2));
+    button.primary{
+      background:linear-gradient(135deg,#38bdf8,#a855f7);
       color:#020617;
-      box-shadow:0 12px 30px rgba(56,189,248,0.55);
+      box-shadow:0 14px 34px rgba(56,189,248,0.55);
     }
-    .btn[disabled]{opacity:.55;cursor:default;box-shadow:none;}
-    .status{
-      font-size:11px;
-      margin-top:6px;
-      min-height:14px;
-    }
-    .status.ok{color:var(--ok);}
-    .status.err{color:var(--err);}
-    .slots-header{
+    button[disabled]{opacity:.55;cursor:default;box-shadow:none;}
+    .btn-row{
       display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:6px;
+      justify-content:flex-end;
       gap:8px;
-    }
-    .slots-controls{
-      display:flex;
-      gap:6px;
-      align-items:center;
+      margin-top:6px;
       flex-wrap:wrap;
-      font-size:11px;
-    }
-    .slots-controls select{
-      width:auto;
-      padding:4px 8px;
-      font-size:11px;
-      border-radius:999px;
-    }
-    .slots-grid{
-      border-radius:18px;
-      border:1px solid rgba(51,65,85,0.9);
-      max-height:260px;
-      overflow:auto;
-      padding:6px;
-      background:radial-gradient(circle at top,#020617,#020617);
-      font-size:11px;
-    }
-    .slot-row{
-      display:flex;
-      align-items:center;
-      gap:4px;
-      margin-bottom:2px;
-    }
-    .slot-minute-label{
-      width:46px;
-      text-align:right;
-      opacity:.6;
-      font-variant-numeric:tabular-nums;
-    }
-    .slot{
-      border-radius:999px;
-      border:1px solid rgba(51,65,85,0.9);
-      background:rgba(15,23,42,0.96);
-      padding:3px 8px;
-      font-size:10px;
-      cursor:pointer;
-      min-width:40px;
-    }
-    .slot.free{color:#e5e7eb;}
-    .slot.busy{background:rgba(127,29,29,0.9);border-color:rgba(248,113,113,0.9);color:#fee2e2;cursor:not-allowed;}
-    .slot.past{opacity:.35;cursor:not-allowed;}
-    .slot.selected{background:rgba(22,163,74,0.9);border-color:#4ade80;color:#022c22;}
-    .summary{
-      font-size:11px;
-      opacity:.85;
-      margin-top:4px;
-    }
-    video{
-      width:100%;
-      max-height:260px;
-      border-radius:18px;
-      border:1px solid rgba(30,64,175,0.75);
-      background:#000;
-      object-fit:contain;
     }
     .pill{
       display:inline-flex;
       align-items:center;
       gap:6px;
       border-radius:999px;
-      padding:3px 10px;
+      padding:4px 10px;
       font-size:10px;
       background:rgba(15,23,42,0.95);
       border:1px solid rgba(148,163,184,0.5);
       margin-bottom:10px;
     }
-    .pill-dot{
+    .dot{
       width:7px;height:7px;border-radius:999px;
       background:radial-gradient(circle,#22c55e,#16a34a);
       box-shadow:0 0 8px rgba(34,197,94,0.8);
     }
+    video{
+      width:100%;
+      border-radius:18px;
+      border:1px solid rgba(30,64,175,0.7);
+      background:#000;
+      max-height:280px;
+      object-fit:contain;
+    }
+    .status{
+      font-size:11px;
+      min-height:14px;
+      margin-top:6px;
+    }
+    .status.ok{color:var(--ok);}
+    .status.err{color:var(--danger);}
+    .tag{
+      display:inline-flex;align-items:center;
+      padding:3px 8px;border-radius:999px;
+      font-size:10px;
+      background:var(--accent-soft);
+      color:#e5e7eb;
+    }
+    .summary{
+      font-size:12px;
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px dashed rgba(148,163,184,0.7);
+      background:rgba(15,23,42,0.9);
+    }
+    .summary-row{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:4px;
+    }
+    .summary-label{opacity:.65;}
+    .summary-value{font-weight:500;}
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="shell">
     <header>
-      <h1><span class="logo">G</span> GVX City Screens</h1>
-      <p>Reserva 15 segundos en pantallas urbanas · selección de slots en tiempo real.</p>
+      <div class="brand">
+        <div class="logo">G</div>
+        <div>
+          <h1>GVX City Screens</h1>
+          <p class="subtitle">Reserva 15 segundos en pantallas urbanas.</p>
+        </div>
+      </div>
+      <div class="tag">Demo · Beta</div>
     </header>
-    <div class="card">
-      <div class="steps">
-        <div class="step-pill" id="stepPill1"><span>Paso 1 · Agenda tu slot</span><span>Fecha y pantalla</span></div>
-        <div class="step-pill" id="stepPill2"><span>Paso 2 · Sube tu video</span><span>Recorte y preview</span></div>
-        <div class="step-pill" id="stepPill3"><span>Paso 3 · Confirma</span><span>Pago y resumen</span></div>
+
+    <div class="steps-bar"><div id="stepsFill" class="steps-bar-fill"></div></div>
+    <div class="steps-header">
+      <span id="stepLabel1" class="active">Paso 1 · Agenda tu slot</span>
+      <span id="stepLabel2">Paso 2 · Video</span>
+      <span id="stepLabel3">Paso 3 · Pago</span>
+    </div>
+
+    <div class="grid">
+      <!-- LADO IZQUIERDO -->
+      <div>
+        <!-- PASO 1 -->
+        <div id="step1">
+          <span class="pill"><span class="dot"></span>Fecha y pantalla</span>
+          <div class="field">
+            <label for="apiUrl">API URL (demo)</label>
+            <input id="apiUrl" type="text" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
+            <div class="tiny">En producción coloca aquí la URL del API en Koyeb.</div>
+          </div>
+          <div class="field">
+            <label for="dateInput">Fecha</label>
+            <input id="dateInput" type="date" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="hourSelect">Hora</label>
+              <select id="hourSelect"></select>
+            </div>
+            <div class="field">
+              <label for="minuteSelect">Minuto</label>
+              <select id="minuteSelect"></select>
+            </div>
+            <div class="field">
+              <label for="secondSelect">Segundos (bloque 15s)</label>
+              <select id="secondSelect">
+                <option value="0">00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="cityInput">Ciudad</label>
+            <input id="cityInput" type="text" value="Maracay" />
+          </div>
+          <div class="field">
+            <label for="screenInput">Pantalla</label>
+            <select id="screenInput">
+              <option>CC Los Aviadores · Entrada principal</option>
+              <option>CC Los Aviadores · Patio de comida</option>
+              <option>Av. Principal · Pantalla 01</option>
+              <option>Av. Principal · Pantalla 02</option>
+            </select>
+          </div>
+          <div id="slotInfo" class="tiny"></div>
+          <div id="existingSlotInfo" class="tiny" style="margin-top:4px;"></div>
+          <div class="btn-row">
+            <button class="primary" id="step1Next">Continuar</button>
+          </div>
+          <div id="statusStep1" class="status"></div>
+        </div>
+
+        <!-- PASO 2 -->
+        <div id="step2" style="display:none;">
+          <span class="pill"><span class="dot"></span>Video · Recorta tu anuncio</span>
+          <div class="field">
+            <label for="videoFile">Archivo de video</label>
+            <input id="videoFile" type="file" accept="video/*" />
+          </div>
+          <div class="field">
+            <label for="startRange">Inicio dentro del archivo (segundos)</label>
+            <input id="startRange" type="range" min="0" max="60" step="0.5" value="0" />
+            <div class="tiny">El sistema generará un spot de 15 segundos a partir de este punto.</div>
+          </div>
+          <div class="btn-row">
+            <button id="backTo1">Volver</button>
+            <button id="continueTo3" disabled>Continuar al pago</button>
+            <button class="primary" id="processVideoBtn">Procesar video</button>
+          </div>
+          <div id="statusStep2" class="status"></div>
+        </div>
+
+        <!-- PASO 3 -->
+        <div id="step3" style="display:none;">
+          <span class="pill"><span class="dot"></span>Pago y confirmación</span>
+          <div class="summary" id="summaryBox">
+            <div class="summary-row">
+              <span class="summary-label">Pantalla</span>
+              <span class="summary-value" id="summaryScreen">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Ciudad</span>
+              <span class="summary-value" id="summaryCity">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Horario</span>
+              <span class="summary-value" id="summaryTime">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Duración</span>
+              <span class="summary-value">15 segundos</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-label">Orden</span>
+              <span class="summary-value" id="summaryOrder">Se generará al pagar</span>
+            </div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>Pago demo</label>
+            <div class="tiny">En este demo, el botón de abajo simula un pago aprobado y programa el spot en el API.</div>
+          </div>
+          <div class="btn-row">
+            <button id="backTo2">Volver</button>
+            <button class="primary" id="payBtn">Simular pago y programar</button>
+          </div>
+          <div id="statusStep3" class="status"></div>
+        </div>
       </div>
 
-      <!-- PASO 1 -->
-      <section id="step1" class="step-panel active">
-        <span class="pill"><span class="pill-dot"></span>Paso 1 · Agenda tu slot</span>
-        <div class="grid">
-          <div>
-            <div class="field">
-              <label for="apiUrl">API URL (demo · Koyeb)</label>
-              <input id="apiUrl" type="text" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
-              <div class="tiny">En producción usa aquí la URL del API desplegado en Koyeb.</div>
-            </div>
-            <div class="field">
-              <label for="dateInput">Fecha</label>
-              <input id="dateInput" type="date" />
-            </div>
-            <div class="field">
-              <label for="citySelect">Ciudad</label>
-              <select id="citySelect">
-                <option>Maracay</option>
-                <option>Caracas</option>
-                <option>Valencia</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="screenSelect">Pantalla</label>
-              <select id="screenSelect">
-                <option>CC Los Aviadores · Entrada principal</option>
-                <option>CC Los Aviadores · Piso 2</option>
-                <option>Av. Bolívar · LED 01</option>
-              </select>
-            </div>
-            <div class="field">
-              <label>Slot de 15 segundos</label>
-              <div class="slots-header">
-                <div class="tiny">Elige la hora, luego un bloque de 15 segundos disponible (verde).</div>
-                <div class="slots-controls">
-                  <span>Hora:</span>
-                  <select id="hourSelect"></select>
-                </div>
-              </div>
-              <div id="slotSummary" class="summary">Ningún slot seleccionado.</div>
-            </div>
-          </div>
-          <div>
-            <div class="field">
-              <label>Hora actual</label>
-              <div class="tiny" id="nowLabel">—</div>
-            </div>
-            <div class="field">
-              <label>Disponibilidad (bloques de 15s)</label>
-              <div id="slotsContainer" class="slots-grid"></div>
-            </div>
-          </div>
-        </div>
-        <div class="actions">
-          <span class="status" id="status1"></span>
-          <button class="btn primary" id="toStep2">Continuar</button>
-        </div>
-      </section>
-
-      <!-- PASO 2 -->
-      <section id="step2" class="step-panel">
-        <span class="pill"><span class="pill-dot"></span>Paso 2 · Sube tu video</span>
-        <div class="grid">
-          <div>
-            <div class="field">
-              <label for="fileInput">Archivo de video</label>
-              <input id="fileInput" type="file" accept="video/*" />
-              <div class="tiny">Idealmente 15 segundos o más, el sistema recorta al estándar de 15s.</div>
-            </div>
-            <div class="field">
-              <label for="startInput">Inicio dentro del archivo (segundos)</label>
-              <input id="startInput" type="number" min="0" value="0" />
-            </div>
-            <div class="actions">
-              <button class="btn" id="backTo1">Volver</button>
-              <button class="btn primary" id="processBtn">Procesar preview</button>
-            </div>
-            <div id="status2" class="status"></div>
-          </div>
-          <div>
-            <label>Preview del recorte (15s)</label>
-            <video id="previewVideo" controls muted></video>
-          </div>
-        </div>
-      </section>
-
-      <!-- PASO 3 -->
-      <section id="step3" class="step-panel">
-        <span class="pill"><span class="pill-dot"></span>Paso 3 · Confirmación</span>
-        <div class="grid">
-          <div>
-            <h3 style="margin:0 0 8px;font-size:15px;">Resumen de tu reserva</h3>
-            <div class="tiny" id="summaryText">—</div>
-            <div class="field" style="margin-top:12px;">
-              <label>Simular pago</label>
-              <div class="tiny">En la versión demo solo se simula el pago. En producción aquí iría el proveedor de pagos.</div>
-            </div>
-            <div class="actions">
-              <button class="btn" id="backTo2">Volver</button>
-              <button class="btn primary" id="payBtn">Simular pago y programar</button>
-            </div>
-            <div id="status3" class="status"></div>
-          </div>
-          <div>
-            <label>Preview del spot programado</label>
-            <video id="previewFinal" controls muted></video>
-          </div>
-        </div>
-      </section>
+      <!-- LADO DERECHO: preview -->
+      <div>
+        <label>Preview del spot recortado</label>
+        <video id="previewVideo" controls muted></video>
+        <div class="tiny" style="margin-top:6px;">Este preview se genera desde el endpoint /media/trim del API y no afecta a la programación final.</div>
+      </div>
     </div>
   </div>
+
 <script>
 (function(){
-  var state = {
+  const state = {
+    step: 1,
     apiBase: "",
-    selectedDate: null,
-    selectedHour: null,
-    selectedSlotKey: null,
     scheduledAtIso: null,
+    scheduledLocal: "",
     city: "",
     screen: "",
     file: null,
     trimStart: 0,
-    scheduleFromApi: null
+    previewReady: false,
+    orderId: null
   };
 
-  var stepPill1 = document.getElementById("stepPill1");
-  var stepPill2 = document.getElementById("stepPill2");
-  var stepPill3 = document.getElementById("stepPill3");
-  var step1 = document.getElementById("step1");
-  var step2 = document.getElementById("step2");
-  var step3 = document.getElementById("step3");
+  const stepsFill = document.getElementById("stepsFill");
+  const stepLabel1 = document.getElementById("stepLabel1");
+  const stepLabel2 = document.getElementById("stepLabel2");
+  const stepLabel3 = document.getElementById("stepLabel3");
+  const step1El = document.getElementById("step1");
+  const step2El = document.getElementById("step2");
+  const step3El = document.getElementById("step3");
+
+  const apiInput = document.getElementById("apiUrl");
+  const dateInput = document.getElementById("dateInput");
+  const hourSelect = document.getElementById("hourSelect");
+  const minuteSelect = document.getElementById("minuteSelect");
+  const secondSelect = document.getElementById("secondSelect");
+  const cityInput = document.getElementById("cityInput");
+  const screenInput = document.getElementById("screenInput");
+  const slotInfo = document.getElementById("slotInfo");
+  const existingSlotInfo = document.getElementById("existingSlotInfo");
+  const statusStep1 = document.getElementById("statusStep1");
+  const step1Next = document.getElementById("step1Next");
+
+  const videoFileInput = document.getElementById("videoFile");
+  const startRange = document.getElementById("startRange");
+  const processVideoBtn = document.getElementById("processVideoBtn");
+  const continueTo3Btn = document.getElementById("continueTo3");
+  const statusStep2 = document.getElementById("statusStep2");
+  const backTo1 = document.getElementById("backTo1");
+
+  const previewVideo = document.getElementById("previewVideo");
+
+  const summaryScreen = document.getElementById("summaryScreen");
+  const summaryCity = document.getElementById("summaryCity");
+  const summaryTime = document.getElementById("summaryTime");
+  const summaryOrder = document.getElementById("summaryOrder");
+  const statusStep3 = document.getElementById("statusStep3");
+  const backTo2 = document.getElementById("backTo2");
+  const payBtn = document.getElementById("payBtn");
 
   function setStep(n){
-    [step1,step2,step3].forEach(function(el){el.classList.remove("active");});
-    [stepPill1,stepPill2,stepPill3].forEach(function(el){el.classList.remove("active");});
-    if(n===1){step1.classList.add("active");stepPill1.classList.add("active");}
-    if(n===2){step2.classList.add("active");stepPill2.classList.add("active");}
-    if(n===3){step3.classList.add("active");stepPill3.classList.add("active");}
+    state.step = n;
+    step1El.style.display = n === 1 ? "block" : "none";
+    step2El.style.display = n === 2 ? "block" : "none";
+    step3El.style.display = n === 3 ? "block" : "none";
+    stepLabel1.classList.toggle("active", n === 1);
+    stepLabel2.classList.toggle("active", n === 2);
+    stepLabel3.classList.toggle("active", n === 3);
+    stepsFill.style.width = n === 1 ? "33.34%" : n === 2 ? "66.67%" : "100%";
   }
 
-  var apiInput = document.getElementById("apiUrl");
-  var dateInput = document.getElementById("dateInput");
-  var citySelect = document.getElementById("citySelect");
-  var screenSelect = document.getElementById("screenSelect");
-  var hourSelect = document.getElementById("hourSelect");
-  var nowLabel = document.getElementById("nowLabel");
-  var slotsContainer = document.getElementById("slotsContainer");
-  var slotSummary = document.getElementById("slotSummary");
-  var status1 = document.getElementById("status1");
+  // ----- TIME & SLOT -----
+  (function initTimeSelectors(){
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0,10);
+    dateInput.value = todayStr;
 
-  var fileInput = document.getElementById("fileInput");
-  var startInput = document.getElementById("startInput");
-  var status2 = document.getElementById("status2");
-  var previewVideo = document.getElementById("previewVideo");
+    hourSelect.innerHTML = "";
+    for(let h=0; h<24; h++){
+      const opt = document.createElement("option");
+      opt.value = String(h);
+      opt.textContent = String(h).padStart(2,"0");
+      hourSelect.appendChild(opt);
+    }
+    minuteSelect.innerHTML = "";
+    for(let m=0; m<60; m++){
+      const opt = document.createElement("option");
+      opt.value = String(m);
+      opt.textContent = String(m).padStart(2,"0");
+      minuteSelect.appendChild(opt);
+    }
 
-  var summaryText = document.getElementById("summaryText");
-  var status3 = document.getElementById("status3");
-  var previewFinal = document.getElementById("previewFinal");
+    hourSelect.value = String(now.getHours());
+    minuteSelect.value = String(now.getMinutes());
+    secondSelect.value = "0";
+    updateSlotDisplay(null);
+  })();
 
-  function updateClock(){
-    nowLabel.textContent = new Date().toLocaleString();
-  }
-  updateClock();
-  setInterval(updateClock,1000);
-
-  // llenar horas 0-23
-  for(var h=0;h<24;h++){
-    var opt=document.createElement("option");
-    opt.value=String(h);
-    opt.textContent=(h<10?"0":"")+h+":00";
-    hourSelect.appendChild(opt);
-  }
-
-  function initDateHourDefaults(){
-    var now = new Date();
-    var yyyy = now.getFullYear();
-    var mm = String(now.getMonth()+1).padStart(2,"0");
-    var dd = String(now.getDate()).padStart(2,"0");
-    dateInput.value = yyyy+"-"+mm+"-"+dd;
-    state.selectedDate = dateInput.value;
-    state.selectedHour = now.getHours();
-    hourSelect.value = String(state.selectedHour);
-  }
-  initDateHourDefaults();
-
-  function loadExistingSchedule(){
-    state.scheduleFromApi = null;
-    var api = apiInput.value.trim().replace(/\/$/,"");
-    state.apiBase = api;
-    if(!api){renderSlots();return;}
-    fetch(api + "/schedule/next", {cache:"no-store"})
-      .then(function(res){
-        if(!res.ok) return null;
-        return res.json();
-      })
-      .then(function(data){
-        if(data && !data.error){
-          state.scheduleFromApi = data;
-        }
-        renderSlots();
-      })
-      .catch(function(){
-        renderSlots();
-      });
+  function getSelectedSlotIso(){
+    const date = dateInput.value;
+    if(!date) return null;
+    const h = parseInt(hourSelect.value || "0", 10);
+    const m = parseInt(minuteSelect.value || "0", 10);
+    const s = parseInt(secondSelect.value || "0", 10);
+    const local = date + "T" + String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    const dt = new Date(local);
+    if(isNaN(dt.getTime())) return null;
+    return dt.toISOString();
   }
 
-  function renderSlots(){
-    var dateStr = dateInput.value;
-    if(!dateStr){
-      slotsContainer.innerHTML = "<div class='tiny'>Selecciona una fecha para ver los slots.</div>";
+  function updateSlotDisplay(existingSchedule){
+    const iso = getSelectedSlotIso();
+    if(!iso){
+      slotInfo.textContent = "";
       return;
     }
-    var selectedHour = Number(hourSelect.value || "0");
-    state.selectedDate = dateStr;
-    state.selectedHour = selectedHour;
+    const local = new Date(iso).toLocaleString();
+    let text = "Slot seleccionado: " + local + " (15s)";
+    if(existingSchedule){
+      const schedStart = new Date(existingSchedule.startTime);
+      const selected = new Date(iso);
+      if(schedStart.getTime() === selected.getTime()){
+        text += " · OCUPADO por " + existingSchedule.id;
+      } else {
+        text += " · Disponible";
+      }
+      const schedLocal = schedStart.toLocaleString();
+      existingSlotInfo.textContent = "Próxima programación actual: " + existingSchedule.id + " · " + schedLocal;
+    }
+    slotInfo.textContent = text;
+  }
 
-    var now = new Date();
+  async function fetchExistingSchedule(apiBase){
+    try{
+      const res = await fetch(apiBase + "/schedule/next", { cache: "no-store" });
+      if(!res.ok){
+        existingSlotInfo.textContent = "No hay programación cargada aún.";
+        updateSlotDisplay(null);
+        return null;
+      }
+      const data = await res.json();
+      updateSlotDisplay(data);
+      return data;
+    }catch(e){
+      existingSlotInfo.textContent = "No se pudo consultar la programación.";
+      updateSlotDisplay(null);
+      return null;
+    }
+  }
 
-    var busyKey = null;
-    if(state.scheduleFromApi){
-      var s = new Date(state.scheduleFromApi.startTime);
-      var sY = s.getFullYear();
-      var sM = String(s.getMonth()+1).padStart(2,"0");
-      var sD = String(s.getDate()).padStart(2,"0");
-      var sDateStr = sY+"-"+sM+"-"+sD;
-      if(sDateStr === dateStr && s.getHours() === selectedHour){
-        var m = String(s.getMinutes()).padStart(2,"0");
-        var sec = String(s.getSeconds()).padStart(2,"0");
-        busyKey = String(selectedHour).padStart(2,"0")+":"+m+":"+sec;
+  dateInput.addEventListener("change", () => updateSlotDisplay(null));
+  hourSelect.addEventListener("change", () => updateSlotDisplay(null));
+  minuteSelect.addEventListener("change", () => updateSlotDisplay(null));
+  secondSelect.addEventListener("change", () => updateSlotDisplay(null));
+
+  // ----- PASO 1 -----
+  step1Next.addEventListener("click", async function(){
+    statusStep1.textContent = "";
+    statusStep1.className = "status";
+    const api = apiInput.value.trim().replace(/\/$/,"");
+    if(!api){
+      statusStep1.textContent = "Falta API URL.";
+      statusStep1.classList.add("err");
+      return;
+    }
+    const iso = getSelectedSlotIso();
+    if(!iso){
+      statusStep1.textContent = "Selecciona fecha y hora válidas.";
+      statusStep1.classList.add("err");
+      return;
+    }
+    const now = new Date();
+    const selected = new Date(iso);
+    if(selected.getTime() <= now.getTime()){
+      statusStep1.textContent = "El slot debe ser en el futuro.";
+      statusStep1.classList.add("err");
+      return;
+    }
+
+    const existing = await fetchExistingSchedule(api);
+    if(existing){
+      const schedStart = new Date(existing.startTime);
+      if(schedStart.getTime() === selected.getTime()){
+        statusStep1.textContent = "Ese bloque de 15s ya está ocupado por la orden " + existing.id + ".";
+        statusStep1.classList.add("err");
+        return;
       }
     }
 
-    slotsContainer.innerHTML = "";
-    for(var minute=0; minute<60; minute++){
-      var row = document.createElement("div");
-      row.className = "slot-row";
-      var label = document.createElement("div");
-      label.className = "slot-minute-label";
-      label.textContent = String(selectedHour).padStart(2,"0")+":"+String(minute).padStart(2,"0");
-      row.appendChild(label);
-      [0,15,30,45].forEach(function(sec){
-        var key = String(selectedHour).padStart(2,"0")+":"+String(minute).padStart(2,"0")+":"+String(sec).padStart(2,"0");
-        var slotTime = new Date(dateStr+"T"+key);
-        var btn = document.createElement("button");
-        btn.className = "slot";
-        btn.textContent = ":"+String(sec).padStart(2,"0");
-        btn.dataset.key = key;
-
-        var status = "free";
-        if(dateStr === (now.toISOString().slice(0,10)) && slotTime.getTime() <= now.getTime()){
-          status = "past";
-        }
-        if(busyKey && key === busyKey){
-          status = "busy";
-        }
-
-        btn.classList.add(status);
-        if(status !== "free"){btn.disabled = true;}
-
-        if(state.selectedSlotKey === key && status === "free"){
-          btn.classList.add("selected");
-        }
-
-        row.appendChild(btn);
-      });
-      slotsContainer.appendChild(row);
-    }
-
-    if(state.selectedSlotKey && state.scheduledAtIso){
-      slotSummary.textContent = "Slot seleccionado: "+ new Date(state.scheduledAtIso).toLocaleString();
-    }else{
-      slotSummary.textContent = "Ningún slot seleccionado.";
-    }
-  }
-
-  slotsContainer.addEventListener("click", function(e){
-    var btn = e.target.closest("button.slot");
-    if(!btn || btn.disabled){return;}
-    var key = btn.dataset.key;
-    var dateStr = dateInput.value;
-    if(!dateStr){return;}
-    var iso = new Date(dateStr+"T"+key).toISOString();
-    state.selectedSlotKey = key;
-    state.scheduledAtIso = iso;
-    renderSlots();
-  });
-
-  apiInput.addEventListener("change", loadExistingSchedule);
-  dateInput.addEventListener("change", renderSlots);
-  hourSelect.addEventListener("change", renderSlots);
-
-  loadExistingSchedule();
-
-  // Paso 1 -> Paso 2
-  document.getElementById("toStep2").addEventListener("click", function(){
-    status1.textContent = "";
-    status1.className = "status";
-    var api = apiInput.value.trim().replace(/\/$/,"");
-    if(!api){
-      status1.textContent = "Configura primero la API URL.";
-      status1.classList.add("err");
-      return;
-    }
-    if(!state.scheduledAtIso){
-      status1.textContent = "Selecciona un slot de 15 segundos.";
-      status1.classList.add("err");
-      return;
-    }
     state.apiBase = api;
-    state.city = citySelect.value;
-    state.screen = screenSelect.value;
+    state.scheduledAtIso = iso;
+    state.scheduledLocal = selected.toLocaleString();
+    state.city = cityInput.value.trim();
+    state.screen = screenInput.value;
+
+    summaryScreen.textContent = state.screen;
+    summaryCity.textContent = state.city;
+    summaryTime.textContent = state.scheduledLocal;
+
     setStep(2);
   });
 
-  document.getElementById("backTo1").addEventListener("click", function(){
-    setStep(1);
-  });
+  // ----- PASO 2 -----
+  backTo1.addEventListener("click", () => setStep(1));
 
-  // Paso 2: subida + preview
-  fileInput.addEventListener("change", function(){
-    status2.textContent = "";
-    status2.className = "status";
-    if(fileInput.files && fileInput.files[0]){
-      state.file = fileInput.files[0];
-    }else{
-      state.file = null;
-    }
-  });
-
-  document.getElementById("processBtn").addEventListener("click", function(){
-    status2.textContent = "";
-    status2.className = "status";
-    if(!state.file){
-      status2.textContent = "Selecciona un archivo de video primero.";
-      status2.classList.add("err");
-      return;
-    }
-    var api = state.apiBase;
+  processVideoBtn.addEventListener("click", async function(){
+    statusStep2.textContent = "";
+    statusStep2.className = "status";
+    const api = state.apiBase;
     if(!api){
-      status2.textContent = "Falta API URL.";
-      status2.classList.add("err");
+      statusStep2.textContent = "Configura primero el Paso 1.";
+      statusStep2.classList.add("err");
       return;
     }
-    var start = Number(startInput.value) || 0;
-    state.trimStart = start;
+    const file = videoFileInput.files && videoFileInput.files[0];
+    if(!file){
+      statusStep2.textContent = "Selecciona un archivo de video.";
+      statusStep2.classList.add("err");
+      return;
+    }
+    state.file = file;
+    state.trimStart = Number(startRange.value) || 0;
 
-    var fd = new FormData();
-    fd.append("file", state.file);
-    fd.append("start", String(start));
+    processVideoBtn.disabled = true;
+    continueTo3Btn.disabled = true;
+    state.previewReady = false;
+    processVideoBtn.textContent = "Procesando…";
 
-    var btn = this;
-    btn.disabled = true;
-    btn.textContent = "Procesando…";
+    try{
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("start", String(state.trimStart));
+      fd.append("length", "15");
 
-    fetch(api + "/media/trim", {
-      method:"POST",
-      body:fd
-    }).then(function(res){
-      if(!res.ok){throw new Error("Error al generar preview");}
-      return res.blob();
-    }).then(function(blob){
-      var url = URL.createObjectURL(blob);
+      const res = await fetch(api + "/media/trim", {
+        method: "POST",
+        body: fd
+      });
+
+      if(!res.ok){
+        const text = await res.text();
+        throw new Error(text || "Error al generar preview");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
       previewVideo.src = url;
-      previewVideo.play().catch(function(){});
-      status2.textContent = "Preview generada correctamente.";
-      status2.classList.add("ok");
-    }).catch(function(err){
-      console.error(err);
-      status2.textContent = err.message || "Error inesperado";
-      status2.classList.add("err");
-    }).finally(function(){
-      btn.disabled = false;
-      btn.textContent = "Procesar preview";
-    });
-  });
-
-  // Paso 2 -> Paso 3
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  document.getElementById("backTo1").onclick = function(){ setStep(1); };
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  document.getElementById("backTo2").onclick = function(){ setStep(2); };
-
-  // Navegar a Paso 3 cuando hay preview
-  document.getElementById("backTo2"); // placeholder para no romper nada
-
-  // Botón "Simular pago" en Paso 3
-  document.getElementById("backTo2").addEventListener("click", function(){
-    setStep(2);
-  });
-
-  document.getElementById("backTo1").addEventListener("click", function(){
-    setStep(1);
-  });
-
-  document.getElementById("processBtn").addEventListener("dblclick", function(){
-    // atajo: si ya hay preview, permite avanzar
-    if(previewVideo.src){
-      setStep(3);
-      fillSummary();
+      previewVideo.play().catch(() => {});
+      state.previewReady = true;
+      continueTo3Btn.disabled = false;
+      statusStep2.textContent = "Preview generado correctamente. Ahora puedes continuar al pago.";
+      statusStep2.classList.add("ok");
+    } catch(e){
+      console.error(e);
+      statusStep2.textContent = e.message || "Error inesperado al procesar el video.";
+      statusStep2.classList.add("err");
+    } finally {
+      processVideoBtn.disabled = false;
+      processVideoBtn.textContent = "Procesar video";
     }
   });
 
-  function fillSummary(){
-    var when = state.scheduledAtIso ? new Date(state.scheduledAtIso).toLocaleString() : "—";
-    summaryText.textContent =
-      "Ciudad: " + state.city + " · Pantalla: " + state.screen +
-      " · Slot: " + when +
-      " · Duración: 15 segundos.";
-  }
-
-  document.getElementById("toStep2").addEventListener("dblclick", function(){
-    // por si quieres saltar rápido, no obligatorio
-    setStep(2);
-  });
-
-  document.getElementById("backTo2").addEventListener("dblclick", function(){
+  continueTo3Btn.addEventListener("click", function(){
+    if(!state.previewReady){
+      statusStep2.textContent = "Primero procesa el video para ver el preview.";
+      statusStep2.classList.add("err");
+      return;
+    }
     setStep(3);
-    fillSummary();
   });
 
-  // Botón de pago real (Paso 3)
-  document.getElementById("backTo2").removeEventListener("dblclick", function(){});
-  var payBtn = document.getElementById("payBtn");
-  payBtn.addEventListener("click", function(){
-    status3.textContent = "";
-    status3.className = "status";
-    if(!state.file){
-      status3.textContent = "Falta el archivo de video (sube en Paso 2).";
-      status3.classList.add("err");
-      return;
-    }
-    if(!state.scheduledAtIso){
-      status3.textContent = "Falta el slot de 15 segundos.";
-      status3.classList.add("err");
-      return;
-    }
-    var api = state.apiBase;
-    if(!api){
-      status3.textContent = "Falta API URL.";
-      status3.classList.add("err");
-      return;
-    }
-    fillSummary();
+  // ----- PASO 3 -----
+  backTo2.addEventListener("click", () => setStep(2));
 
-    var fd = new FormData();
-    fd.append("file", state.file);
-    fd.append("start", String(state.trimStart || 0));
-    fd.append("scheduledAt", state.scheduledAtIso);
-    fd.append("city", state.city);
-    fd.append("screen", state.screen);
+  payBtn.addEventListener("click", async function(){
+    statusStep3.textContent = "";
+    statusStep3.className = "status";
+    if(!state.apiBase || !state.scheduledAtIso || !state.file){
+      statusStep3.textContent = "Falta información del paso 1 o 2.";
+      statusStep3.classList.add("err");
+      return;
+    }
 
     payBtn.disabled = true;
     payBtn.textContent = "Programando…";
 
-    fetch(api + "/media/trim-set", {
-      method:"POST",
-      body:fd
-    }).then(function(res){
-      return res.text().then(function(text){
-        if(!res.ok){throw new Error(text || "Error al programar spot");}
-        try{return JSON.parse(text);}catch(_){return {raw:text};}
+    try{
+      const fd = new FormData();
+      fd.append("file", state.file);
+      fd.append("start", String(state.trimStart));
+      fd.append("scheduledAt", state.scheduledAtIso);
+
+      const res = await fetch(state.apiBase + "/media/trim-set", {
+        method: "POST",
+        body: fd
       });
-    }).then(function(data){
-      status3.textContent = "Pago simulado y spot programado correctamente. ID: " + (data.schedule && data.schedule.id ? data.schedule.id : "—");
-      status3.classList.add("ok");
-      var url = api + "/media/current?ts=" + Date.now();
-      previewFinal.src = url;
-      previewFinal.play().catch(function(){});
-      setStep(3);
-    }).catch(function(err){
-      console.error(err);
-      status3.textContent = err.message || "Error inesperado";
-      status3.classList.add("err");
-    }).finally(function(){
+
+      const text = await res.text();
+      if(!res.ok){
+        throw new Error(text || "Error al programar spot");
+      }
+      let data;
+      try{ data = JSON.parse(text); }catch{ data = { raw:text }; }
+
+      const schedule = data && data.schedule;
+      if(schedule){
+        state.orderId = schedule.id;
+        const local = new Date(schedule.startTime).toLocaleString();
+        state.scheduledLocal = local;
+        summaryTime.textContent = local;
+        summaryOrder.textContent = schedule.id;
+        statusStep3.textContent = "Pago simulado OK. Spot programado como " + schedule.id + ".";
+        statusStep3.classList.add("ok");
+      }else{
+        statusStep3.textContent = "Pago simulado OK, pero sin datos de programación.";
+        statusStep3.classList.add("ok");
+      }
+    }catch(e){
+      console.error(e);
+      statusStep3.textContent = e.message || "Error al programar el spot.";
+      statusStep3.classList.add("err");
+    }finally{
       payBtn.disabled = false;
       payBtn.textContent = "Simular pago y programar";
-    });
+    }
   });
 
-  // Navegar normal a paso 3 cuando ya hay preview (click en título de resumen)
-  summaryText.addEventListener("click", function(){
-    setStep(3);
-  });
+  // Consultar programación existente al cargar
+  fetchExistingSchedule(apiInput.value.trim().replace(/\/$/,""));
 })();
 </script>
 </body>
