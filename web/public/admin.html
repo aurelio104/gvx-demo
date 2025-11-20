@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>GVX Admin · Programar pantalla</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/gvx.css" />
+</head>
+<body class="page-admin">
+  <div class="card">
+    <span class="pill"><span class="pill-dot"></span>GVX Admin · Programar spot</span>
+    <h1>Programar video en pantallas</h1>
+    <p class="sub">Selecciona la fecha y la hora exacta en que debe empezar el video. El reproductor mostrará un conteo regresivo 1 minuto antes y comenzará justo a tiempo.</p>
+    <div class="grid">
+      <div>
+        <div class="field">
+          <label for="apiUrl">API URL (Koyeb)</label>
+          <input id="apiUrl" type="text" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
+          <div class="tiny">Endpoint de la API GVX en Koyeb.</div>
+        </div>
+        <div class="field">
+          <label>Hora actual (servidor local)</label>
+          <div class="tiny" id="nowLabel">—</div>
+        </div>
+        <div class="field">
+          <label for="date">Fecha de emisión</label>
+          <input id="date" type="date" />
+        </div>
+        <div class="field">
+          <label for="time">Hora de inicio exacta</label>
+          <input id="time" type="time" step="1" />
+          <div class="tiny">Ejemplo: 16:15:00 → el spot se muestra de 16:15:00 a 16:15:15.</div>
+        </div>
+        <div class="field">
+          <label for="file">Archivo de video</label>
+          <input id="file" type="file" accept="video/*" />
+        </div>
+        <div class="field">
+          <label for="start">Inicio dentro del archivo (segundos)</label>
+          <input id="start" type="number" min="0" value="0" />
+        </div>
+        <div class="tiny">La duración final siempre será de 15 segundos estándar.</div>
+        <div class="btn-row">
+          <div class="tiny" id="scheduleLabel"></div>
+          <button class="primary" id="sendBtn">Programar spot</button>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
+      <div>
+        <label>Preview del video actual de pantallas</label>
+        <video id="preview" controls muted></video>
+      </div>
+    </div>
+  </div>
+  <script src="js/admin.js" defer></script>
+</body>
+</html>

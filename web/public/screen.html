@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>GVX Player · Pantalla urbana</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/gvx.css" />
+</head>
+<body class="page-screen">
+  <div class="wrap">
+    <video id="player" muted autoplay playsinline></video>
+    <div class="hud-top">
+      <div class="chip">
+        <span class="dot"></span>
+        <span>GVX City Screen</span>
+      </div>
+      <div class="chip config">
+        <input id="apiUrl" type="text" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
+        <button id="startBtn">Iniciar player</button>
+      </div>
+    </div>
+    <div id="countdown" class="countdown">
+      Siguiente spot en <span id="countValue">60s</span>
+    </div>
+    <div class="bottom">
+      <div class="status-line" id="statusText">Sin programación</div>
+      <div class="status-line" id="clockText">—</div>
+    </div>
+  </div>
+  <script src="js/screen.js" defer></script>
+</body>
+</html>

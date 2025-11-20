@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>GVX City Screens · Reserva 15 segundos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="css/gvx.css" />
+</head>
+<body class="page-index">
+  <div class="app">
+    <header>
+      <h1><span class="logo">G</span> GVX City Screens</h1>
+      <p>Reserva 15 segundos en pantallas urbanas · selección de slots en tiempo real.</p>
+    </header>
+    <div class="card">
+      <div class="steps">
+        <div class="step-pill" id="stepPill1"><span>Paso 1 · Agenda tu slot</span><span>Fecha y pantalla</span></div>
+        <div class="step-pill" id="stepPill2"><span>Paso 2 · Sube tu video</span><span>Recorte y preview</span></div>
+        <div class="step-pill" id="stepPill3"><span>Paso 3 · Confirma</span><span>Pago y resumen</span></div>
+      </div>
+
+      <!-- PASO 1 -->
+      <section id="step1" class="step-panel active">
+        <span class="pill"><span class="pill-dot"></span>Paso 1 · Agenda tu slot</span>
+        <div class="grid">
+          <div>
+            <div class="field">
+              <label for="apiUrl">API URL (demo · Koyeb)</label>
+              <input id="apiUrl" type="text" value="https://deep-lorrie-aurelio104-6f5545e3.koyeb.app" />
+              <div class="tiny">En producción usa aquí la URL del API desplegado en Koyeb.</div>
+            </div>
+            <div class="field">
+              <label for="dateInput">Fecha</label>
+              <input id="dateInput" type="date" />
+            </div>
+            <div class="field">
+              <label for="citySelect">Ciudad</label>
+              <select id="citySelect">
+                <option>Maracay</option>
+                <option>Caracas</option>
+                <option>Valencia</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="screenSelect">Pantalla</label>
+              <select id="screenSelect">
+                <option>CC Los Aviadores · Entrada principal</option>
+                <option>CC Los Aviadores · Piso 2</option>
+                <option>Av. Bolívar · LED 01</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Slot de 15 segundos</label>
+              <div class="slots-header">
+                <div class="tiny">Elige la hora, luego un bloque de 15 segundos disponible (verde).</div>
+                <div class="slots-controls">
+                  <span>Hora:</span>
+                  <select id="hourSelect"></select>
+                </div>
+              </div>
+              <div id="slotSummary" class="summary">Ningún slot seleccionado.</div>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label>Hora actual</label>
+              <div class="tiny" id="nowLabel">—</div>
+            </div>
+            <div class="field">
+              <label>Disponibilidad (bloques de 15s)</label>
+              <div id="slotsContainer" class="slots-grid"></div>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <span class="status" id="status1"></span>
+          <button class="btn primary" id="toStep2">Continuar</button>
+        </div>
+      </section>
+
+      <!-- PASO 2 -->
+      <section id="step2" class="step-panel">
+        <span class="pill"><span class="pill-dot"></span>Paso 2 · Sube tu video</span>
+        <div class="grid">
+          <div>
+            <div class="field">
+              <label for="fileInput">Archivo de video</label>
+              <input id="fileInput" type="file" accept="video/*" />
+              <div class="tiny">Idealmente 15 segundos o más, el sistema recorta al estándar de 15s.</div>
+            </div>
+            <div class="field">
+              <label for="startInput">Inicio dentro del archivo (segundos)</label>
+              <input id="startInput" type="number" min="0" value="0" />
+            </div>
+            <div class="actions">
+              <button class="btn" id="backTo1">Volver</button>
+              <div style="display:flex;gap:8px;">
+                <button class="btn" id="toStep3" disabled>Continuar al paso 3</button>
+                <button class="btn primary" id="processBtn">Procesar preview</button>
+              </div>
+            </div>
+            <div id="status2" class="status"></div>
+          </div>
+          <div>
+            <label>Preview del recorte (15s)</label>
+            <video id="previewVideo" controls muted></video>
+          </div>
+        </div>
+      </section>
+
+      <!-- PASO 3 -->
+      <section id="step3" class="step-panel">
+        <span class="pill"><span class="pill-dot"></span>Paso 3 · Confirmación</span>
+        <div class="grid">
+          <div>
+            <h3 style="margin:0 0 8px;font-size:15px;">Resumen de tu reserva</h3>
+            <div class="tiny" id="summaryText">—</div>
+            <div class="field" style="margin-top:12px;">
+              <label>Simular pago</label>
+              <div class="tiny">En la versión demo solo se simula el pago. En producción aquí iría el proveedor de pagos.</div>
+            </div>
+            <div class="actions">
+              <button class="btn" id="backTo2">Volver</button>
+              <button class="btn primary" id="payBtn">Simular pago y programar</button>
+            </div>
+            <div id="status3" class="status"></div>
+          </div>
+          <div>
+            <label>Preview del spot programado</label>
+            <video id="previewFinal" controls muted></video>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="js/index.js" defer></script>
+</body>
+</html>
